@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silent Signal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07080a;
+  --surface: #0f1114;
+  --surface2: #161a1f;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.14);
+  --text: #e8eaed;
+  --muted: #6b7280;
+  --accent: #4ade80;
+  --accent2: #f59e0b;
+  --accent3: #60a5fa;
+  --danger: #f87171;
+  --signal: #4ade80;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  background: rgba(7,8,10,0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+  50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+}
+
+.nav-links { display: flex; gap: 32px; align-items: center; }
+.nav-links a {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  background: var(--accent);
+  color: #07080a;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: 0.02em;
+}
+.nav-cta:hover { background: #86efac; transform: translateY(-1px); }
+
+/* ── SECTIONS ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 48px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(74,222,128,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,222,128,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+}
+
+.hero-glow {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(74,222,128,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-tag {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(74,222,128,0.2);
+  background: rgba(74,222,128,0.05);
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(52px, 8vw, 96px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-align: center;
+  max-width: 900px;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+
+.hero-title .line2 { color: var(--accent); }
+
+.hero-sub {
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--muted);
+  text-align: center;
+  max-width: 520px;
+  line-height: 1.7;
+  margin-top: 28px;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 48px;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+
+.btn-primary {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 32px;
+  background: var(--accent);
+  color: #07080a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: 0.01em;
+}
+.btn-primary:hover { background: #86efac; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(74,222,128,0.2); }
+
+.btn-ghost {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 14px 32px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-ghost:hover { background: var(--surface2); border-color: rgba(255,255,255,0.25); }
+
+/* ── LIVE TICKER ── */
+.hero-ticker {
+  margin-top: 72px;
+  width: 100%;
+  max-width: 900px;
+  animation: fadeUp 0.7s 0.4s ease both;
+}
+
+.ticker-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticker-label::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.ticker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ticker-item {
+  background: var(--surface);
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ticker-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1s ease;
+}
+
+.ticker-item.loaded::after { transform: scaleX(1); }
+
+.ticker-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.ticker-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── ABOUT SECTION ── */
+#about-section {
+  padding: 120px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  margin-top: 64px;
+  align-items: start;
+}
+
+.about-text p {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.about-text p strong { color: var(--text); font-weight: 500; }
+
+.about-callout {
+  border-left: 2px solid var(--accent);
+  padding: 20px 24px;
+  background: rgba(74,222,128,0.03);
+  border-radius: 0 8px 8px 0;
+  margin-top: 32px;
+}
+
+.about-callout p {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text) !important;
+  line-height: 1.5;
+  margin: 0 !important;
+}
+
+.about-cards { display: flex; flex-direction: column; gap: 16px; }
+
+.about-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color .2s, transform .2s;
+}
+
+.about-card:hover {
+  border-color: var(--border-bright);
+  transform: translateX(4px);
+}
+
+.about-card-icon {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.about-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.about-card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── CHECK-IN FORM ── */
+#checkin-section {
+  padding: 120px 48px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.5;
+}
+
+.form-header { margin-bottom: 40px; }
+
+.form-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.form-sub {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.anon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(74,222,128,0.2);
+  background: rgba(74,222,128,0.05);
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+}
+
+.form-step { display: none; }
+.form-step.active { display: block; animation: fadeUp 0.3s ease; }
+
+.step-indicator {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+
+.step-dot {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-bright);
+  flex: 1;
+  transition: background .3s;
+}
+.step-dot.active { background: var(--accent); }
+.step-dot.done { background: rgba(74,222,128,0.4); }
+
+.question-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.question-hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* Multi-select chips */
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.chip {
+  font-size: 13px;
+  padding: 10px 18px;
+  border: 1px solid var(--border-bright);
+  background: var(--surface2);
+  color: var(--muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+  line-height: 1.3;
+}
+
+.chip:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+
+.chip.selected {
+  background: rgba(74,222,128,0.08);
+  border-color: rgba(74,222,128,0.4);
+  color: var(--accent);
+}
+
+/* Slider */
+.slider-wrap { margin-bottom: 32px; }
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.custom-slider {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  background: var(--border-bright);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.custom-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+  transition: transform .15s;
+}
+
+.custom-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+.slider-value {
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-top: 16px;
+}
+
+.slider-value span { font-size: 20px; color: var(--muted); }
+
+/* Year select */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.year-btn {
+  padding: 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border-bright);
+  color: var(--muted);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+}
+
+.year-btn:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+
+.year-btn.selected {
+  background: rgba(74,222,128,0.08);
+  border-color: rgba(74,222,128,0.4);
+  color: var(--accent);
+}
+
+.year-btn .year-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  display: block;
+}
+
+.year-btn .year-label {
+  font-size: 11px;
+  margin-top: 2px;
+  display: block;
+}
+
+/* Form nav */
+.form-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.btn-back {
+  font-size: 13px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .2s;
+  padding: 0;
+}
+.btn-back:hover { color: var(--text); }
+
+.btn-next {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: #07080a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-next:hover { background: #86efac; transform: translateY(-1px); }
+.btn-next:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+/* ── SUCCESS STATE ── */
+.success-state {
+  text-align: center;
+  padding: 24px 0;
+  animation: fadeUp 0.5s ease;
+}
+
+.success-icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 28px;
+}
+
+.success-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.success-msg {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 400px;
+  margin: 0 auto 32px;
+}
+
+.signal-contribution {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.contribution-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.contribution-row:last-child { margin-bottom: 0; }
+
+.contribution-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--border-bright);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.contribution-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1s 0.3s ease;
+}
+
+.contribution-bar.show { transform: scaleX(1); }
+
+.contribution-label {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 160px;
+}
+
+.contribution-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── DASHBOARD ── */
+#dashboard-section {
+  padding: 120px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.dash-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 48px;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(74,222,128,0.2);
+  background: rgba(74,222,128,0.05);
+  padding: 6px 12px;
+  border-radius: 100px;
+}
+
+.live-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+
+.stat-card:hover { border-color: var(--border-bright); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stat-card.green::before { background: linear-gradient(90deg, var(--accent), transparent); }
+.stat-card.amber::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+.stat-card.blue::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+.stat-card.red::before { background: linear-gradient(90deg, var(--danger), transparent); }
+
+.stat-label { font-size: 12px; color: var(--muted); margin-bottom: 12px; letter-spacing: 0.02em; }
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-card.green .stat-num { color: var(--accent); }
+.stat-card.amber .stat-num { color: var(--accent2); }
+.stat-card.blue .stat-num { color: var(--accent3); }
+.stat-card.red .stat-num { color: var(--danger); }
+
+.stat-delta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stat-delta.up { color: var(--danger); }
+.stat-delta.down { color: var(--accent); }
+
+/* Chart area */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+}
+
+.chart-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.chart-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* Bar chart */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; }
+
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+.bar-fill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: rgba(74,222,128,0.25);
+  border: 1px solid rgba(74,222,128,0.4);
+  transition: height 1s ease, background .2s;
+  cursor: pointer;
+  position: relative;
+}
+
+.bar-fill:hover { background: rgba(74,222,128,0.4); }
+
+.bar-fill.highlight {
+  background: rgba(74,222,128,0.6);
+  border-color: var(--accent);
+}
+
+.bar-label { font-size: 10px; color: var(--muted); text-align: center; }
+
+/* Donut chart */
+.donut-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.donut-svg { position: relative; }
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.legend-name {
+  color: var(--muted);
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.legend-pct {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* Signal feed */
+.signal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.signal-feed {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.signal-feed::-webkit-scrollbar { width: 4px; }
+.signal-feed::-webkit-scrollbar-track { background: transparent; }
+.signal-feed::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+.feed-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  animation: fadeIn 0.4s ease;
+}
+
+.feed-item:last-child { border-bottom: none; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
+.feed-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.feed-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.feed-text strong { color: var(--text); font-weight: 500; }
+
+.feed-time {
+  font-size: 11px;
+  color: rgba(107,114,128,0.6);
+  margin-top: 4px;
+}
+
+/* Friction bars */
+.friction-list { display: flex; flex-direction: column; gap: 16px; }
+
+.friction-item {}
+
+.friction-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.friction-name { font-size: 13px; color: var(--text); }
+
+.friction-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.friction-track {
+  height: 6px;
+  background: var(--border-bright);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.friction-fill {
+  height: 100%;
+  border-radius: 3px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.2s ease;
+}
+
+.friction-fill.show { transform: scaleX(1); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.footer-note { font-size: 12px; color: var(--muted); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  #hero, #about-section, #checkin-section, #dashboard-section { padding-left: 24px; padding-right: 24px; }
+  .ticker-grid { grid-template-columns: repeat(2, 1fr); }
+  .about-grid { grid-template-columns: 1fr; gap: 48px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+  .signal-grid { grid-template-columns: 1fr; }
+  .year-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Tooltip */
+.tooltip {
+  position: fixed;
+  background: var(--surface2);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--text);
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity .15s;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-dot"></div>
+    Silent Signal
+  </div>
+  <div class="nav-links">
+    <a href="#" onclick="scrollTo('about-section')">About</a>
+    <a href="#" onclick="scrollTo('dashboard-section')">Dashboard</a>
+    <a href="#" onclick="scrollTo('checkin-section')">Submit Signal</a>
+  </div>
+  <button class="nav-cta" onclick="scrollTo('checkin-section')">Submit Signal →</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-tag">Anonymous · Collective · Real</div>
+
+  <h1 class="hero-title">
+    You're not struggling.<br>
+    <span class="line2">The system is.</span>
+  </h1>
+
+  <p class="hero-sub">
+    Universities promise community, growth, and belonging — but the structure makes it nearly impossible. Silent Signal turns your experience into collective evidence.
+  </p>
+
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="scrollTo('checkin-section')">Submit your signal →</button>
+    <button class="btn-ghost" onclick="scrollTo('dashboard-section')">View live data</button>
+  </div>
+
+  <div class="hero-ticker">
+    <div class="ticker-label">This week at University of Toronto</div>
+    <div class="ticker-grid">
+      <div class="ticker-item" id="t1">
+        <div class="ticker-pct" id="tp1">0%</div>
+        <div class="ticker-desc">can't participate in clubs due to workload</div>
+      </div>
+      <div class="ticker-item" id="t2">
+        <div class="ticker-pct" id="tp2">0%</div>
+        <div class="ticker-desc">skipped wellbeing to keep up academically</div>
+      </div>
+      <div class="ticker-item" id="t3">
+        <div class="ticker-pct" id="tp3">0%</div>
+        <div class="ticker-desc">felt behind despite trying their best</div>
+      </div>
+      <div class="ticker-item" id="t4">
+        <div class="ticker-pct" id="tp4">0%</div>
+        <div class="ticker-desc">didn't reach out — felt it wouldn't help</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about-section" class="reveal">
+  <div class="section-label">What is this</div>
+  <h2 class="section-title">Not a journal.<br>Not a therapy app.</h2>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <p>Universities track grades, retention rates, and graduation numbers. <strong>Nobody tracks the quiet cost of getting there.</strong> The skipped meals, the clubs you couldn't join, the help you didn't ask for because it felt pointless.</p>
+
+      <p>Silent Signal is an anonymous check-in that takes 90 seconds. You're not reflecting on your mindset. You're <strong>reporting a friction point</strong> — something the system put in your way. We aggregate those signals across students and make the pattern visible.</p>
+
+      <p>The insight isn't "what's wrong with you." It's <strong>"you're not the exception — this is the rule."</strong> That distinction matters. It shifts shame into evidence. And evidence can move things.</p>
+
+      <div class="about-callout">
+        <p>"68% of second-year students couldn't attend events they wanted to this semester. That's not a personal failure. That's data."</p>
+      </div>
+    </div>
+
+    <div class="about-cards">
+      <div class="about-card">
+        <div class="about-card-icon">🔒</div>
+        <h4>Fully anonymous</h4>
+        <p>No account. No email. No tracking. You submit a signal and it dissolves into the aggregate — indistinguishable from anyone else's.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">📡</div>
+        <h4>Systemic, not personal</h4>
+        <p>We ask about barriers the institution created — not your mental state. No diagnosis, no labels, no clinical framing. Just: what got in your way?</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">📊</div>
+        <h4>Collective visibility</h4>
+        <p>Your signal joins hundreds of others. The dashboard shows real patterns — by year, program, and week. Invisible suffering becomes undeniable data.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">🎯</div>
+        <h4>Routes to action</h4>
+        <p>Aggregated data goes to student unions and campus newspapers — bodies with actual incentive to act, not the institution being criticized.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECK-IN -->
+<section id="checkin-section" class="reveal">
+  <div class="section-label" style="text-align:center; margin-bottom: 12px;">Submit your signal</div>
+  <h2 class="section-title" style="text-align:center; margin-bottom: 48px;">90 seconds.<br>Completely anonymous.</h2>
+
+  <div class="form-card">
+    <div id="form-main">
+      <div class="form-header">
+        <div class="anon-badge">🔒 Anonymous · no account required</div>
+        <div class="form-title">This week at university</div>
+        <div class="form-sub">Select everything that's true. There are no wrong answers.</div>
+      </div>
+
+      <div class="step-indicator">
+        <div class="step-dot active" id="sd0"></div>
+        <div class="step-dot" id="sd1"></div>
+        <div class="step-dot" id="sd2"></div>
+        <div class="step-dot" id="sd3"></div>
+      </div>
+
+      <!-- Step 0: Year -->
+      <div class="form-step active" id="step0">
+        <div class="question-label">What year are you in?</div>
+        <div class="question-hint">Used only to show you how common your experience is among peers in the same year.</div>
+        <div class="year-grid">
+          <div class="year-btn" onclick="selectYear(1)"><span class="year-num">1</span><span class="year-label">First year</span></div>
+          <div class="year-btn" onclick="selectYear(2)"><span class="year-num">2</span><span class="year-label">Second year</span></div>
+          <div class="year-btn" onclick="selectYear(3)"><span class="year-num">3</span><span class="year-label">Third year</span></div>
+          <div class="year-btn" onclick="selectYear(4)"><span class="year-num">4+</span><span class="year-label">Fourth year+</span></div>
+        </div>
+        <div class="form-nav">
+          <span></span>
+          <button class="btn-next" id="next0" onclick="nextStep(0)" disabled>Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 1: Barriers -->
+      <div class="form-step" id="step1">
+        <div class="question-label">What got in your way this week?</div>
+        <div class="question-hint">Select all that apply — this is about the system, not you.</div>
+        <div class="chip-grid" id="barriers">
+          <div class="chip" onclick="toggleChip(this)">Couldn't join a club or event I wanted to</div>
+          <div class="chip" onclick="toggleChip(this)">Skipped something for my wellbeing to keep up</div>
+          <div class="chip" onclick="toggleChip(this)">Felt behind despite genuinely trying</div>
+          <div class="chip" onclick="toggleChip(this)">Didn't ask for help — felt it wouldn't matter</div>
+          <div class="chip" onclick="toggleChip(this)">Isolated but couldn't explain why to anyone</div>
+          <div class="chip" onclick="toggleChip(this)">Compared myself to "successful" peers unfairly</div>
+          <div class="chip" onclick="toggleChip(this)">Felt like I was the only one struggling</div>
+          <div class="chip" onclick="toggleChip(this)">Campus resources felt inaccessible or inadequate</div>
+        </div>
+        <div class="form-nav">
+          <button class="btn-back" onclick="prevStep(1)">← Back</button>
+          <button class="btn-next" id="next1" onclick="nextStep(1)" disabled>Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Workload -->
+      <div class="form-step" id="step2">
+        <div class="question-label">Hours spent on coursework this week?</div>
+        <div class="question-hint">Be honest — this helps us show students they're not outliers.</div>
+        <div class="slider-wrap">
+          <div class="slider-labels"><span>0 hrs</span><span>60+ hrs</span></div>
+          <input type="range" class="custom-slider" id="workload-slider" min="0" max="60" value="30" oninput="updateSlider(this)">
+          <div class="slider-value"><span id="slider-val">30</span><span> hrs</span></div>
+        </div>
+        <div class="form-nav">
+          <button class="btn-back" onclick="prevStep(2)">← Back</button>
+          <button class="btn-next" onclick="nextStep(2)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Visibility -->
+      <div class="form-step" id="step3">
+        <div class="question-label">Did you feel like your struggle was visible to your university?</div>
+        <div class="question-hint">Not whether they acted on it — just whether they could see it.</div>
+        <div class="chip-grid" style="flex-direction: column;">
+          <div class="chip" style="width:100%" onclick="selectVisibility(this, 'invisible')">No — completely invisible. The institution has no idea.</div>
+          <div class="chip" style="width:100%" onclick="selectVisibility(this, 'partial')">Somewhat — I mentioned it but nothing changed.</div>
+          <div class="chip" style="width:100%" onclick="selectVisibility(this, 'visible')">Yes — they acknowledged it, even if they didn't fix it.</div>
+        </div>
+        <div class="form-nav">
+          <button class="btn-back" onclick="prevStep(3)">← Back</button>
+          <button class="btn-next" id="next3" onclick="submitSignal()" disabled>Submit signal →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div id="form-success" style="display:none">
+      <div class="success-state">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Signal received.</div>
+        <p class="success-msg">Your experience just joined hundreds of others. Together, these patterns become impossible to ignore.</p>
+
+        <div class="signal-contribution" id="contribution-display">
+          <div style="font-size:12px; color: var(--muted); margin-bottom:14px; letter-spacing:0.05em; text-transform:uppercase;">Your signal shifts the data</div>
+          <div class="contribution-row">
+            <div class="contribution-label">Can't join clubs due to workload</div>
+            <div class="contribution-bar-wrap"><div class="contribution-bar" id="cb1" style="width:79%"></div></div>
+            <div class="contribution-pct">79%</div>
+          </div>
+          <div class="contribution-row">
+            <div class="contribution-label">Skipped wellbeing for coursework</div>
+            <div class="contribution-bar-wrap"><div class="contribution-bar" id="cb2" style="width:84%"></div></div>
+            <div class="contribution-pct">84%</div>
+          </div>
+          <div class="contribution-row">
+            <div class="contribution-label">Felt invisible to the institution</div>
+            <div class="contribution-bar-wrap"><div class="contribution-bar" id="cb3" style="width:91%"></div></div>
+            <div class="contribution-pct">91%</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="scrollTo('dashboard-section')">See the full picture →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard-section" class="reveal">
+  <div class="dash-header">
+    <div>
+      <div class="section-label">Live data</div>
+      <h2 class="section-title" style="margin-bottom:0">The pattern,<br>made visible.</h2>
+    </div>
+    <div class="live-badge">Live · Updates every hour</div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stat-grid">
+    <div class="stat-card green">
+      <div class="stat-label">Signals this week</div>
+      <div class="stat-num" id="sn1">847</div>
+      <div class="stat-delta up">↑ 12% from last week</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-label">Avg workload hours</div>
+      <div class="stat-num" id="sn2">38h</div>
+      <div class="stat-delta up">↑ 4h above reported capacity</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Report feeling invisible</div>
+      <div class="stat-num" id="sn3">91%</div>
+      <div class="stat-delta">consistent 6 weeks running</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Skipped self-care</div>
+      <div class="stat-num" id="sn4">84%</div>
+      <div class="stat-delta up">↑ 8% during midterms</div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Weekly signal volume</div>
+      <div class="chart-sub">Total anonymous submissions per week this semester</div>
+      <div class="bar-chart" id="bar-chart"></div>
+      <div style="display:flex; justify-content:space-between; margin-top:8px;">
+        <span style="font-size:10px;color:var(--muted)">Week 1</span>
+        <span style="font-size:10px;color:var(--muted)">Week 8</span>
+        <span style="font-size:10px;color:var(--muted)">Now</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Who's submitting</div>
+      <div class="chart-sub">By year of study</div>
+      <div class="donut-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140" id="donut-svg"></svg>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signal feed + friction -->
+  <div class="signal-grid">
+    <div class="chart-card">
+      <div class="chart-title">Top friction points</div>
+      <div class="chart-sub">% of students reporting each barrier this week</div>
+      <div class="friction-list" id="friction-list"></div>
+    </div>
+
+    <div class="chart-card" style="padding:0; overflow:hidden;">
+      <div style="padding:28px 28px 16px;">
+        <div class="chart-title">Live signal feed</div>
+        <div class="chart-sub">Anonymous submissions as they arrive</div>
+      </div>
+      <div class="signal-feed" id="signal-feed"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="logo-dot" style="width:6px;height:6px"></div>
+    Silent Signal
+  </div>
+  <div class="footer-note">Anonymous by design. Not a clinical tool. <a href="#" style="color:var(--accent3)">Crisis resources ↗</a></div>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ── STATE ──
+const state = { year: null, barriers: [], workload: 30, visibility: null, step: 0 };
+
+// ── NAV ──
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── TICKER ANIMATION ──
+function animCount(el, target, suffix = '%', duration = 1800) {
+  let start = 0, startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    const p = Math.min((ts - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(ease * target) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+setTimeout(() => {
+  animCount(document.getElementById('tp1'), 79);
+  animCount(document.getElementById('tp2'), 84);
+  animCount(document.getElementById('tp3'), 73);
+  animCount(document.getElementById('tp4'), 67);
+  ['t1','t2','t3','t4'].forEach(id => {
+    setTimeout(() => document.getElementById(id).classList.add('loaded'), 200);
+  });
+}, 600);
+
+// ── FORM ──
+function selectYear(y) {
+  state.year = y;
+  document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('next0').disabled = false;
+}
+
+function toggleChip(el) {
+  el.classList.toggle('selected');
+  const any = document.querySelectorAll('#barriers .chip.selected').length > 0;
+  document.getElementById('next1').disabled = !any;
+}
+
+function updateSlider(el) {
+  document.getElementById('slider-val').textContent = el.value;
+  state.workload = parseInt(el.value);
+}
+
+function selectVisibility(el, val) {
+  state.visibility = val;
+  document.querySelectorAll('#step3 .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('next3').disabled = false;
+}
+
+function updateStepDots(current) {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('sd' + i);
+    d.classList.remove('active', 'done');
+    if (i < current) d.classList.add('done');
+    else if (i === current) d.classList.add('active');
+  }
+}
+
+function nextStep(from) {
+  document.getElementById('step' + from).classList.remove('active');
+  document.getElementById('step' + (from + 1)).classList.add('active');
+  updateStepDots(from + 1);
+}
+
+function prevStep(from) {
+  document.getElementById('step' + from).classList.remove('active');
+  document.getElementById('step' + (from - 1)).classList.add('active');
+  updateStepDots(from - 1);
+}
+
+function submitSignal() {
+  document.getElementById('form-main').style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+  setTimeout(() => {
+    document.querySelectorAll('.contribution-bar').forEach(b => b.classList.add('show'));
+  }, 300);
+}
+
+// ── DASHBOARD DATA ──
+const barData = [312, 445, 398, 521, 610, 578, 689, 724, 791, 812, 847];
+const donutData = [
+  { label: 'First year', pct: 31, color: '#4ade80' },
+  { label: 'Second year', pct: 28, color: '#60a5fa' },
+  { label: 'Third year', pct: 24, color: '#f59e0b' },
+  { label: 'Fourth year+', pct: 17, color: '#f87171' },
+];
+
+const frictionData = [
+  { name: 'Skipped wellbeing for coursework', pct: 84, color: '#f87171' },
+  { name: 'Felt invisible to the institution', pct: 91, color: '#f59e0b' },
+  { name: "Couldn't join clubs/events", pct: 79, color: '#60a5fa' },
+  { name: 'Felt behind despite trying', pct: 73, color: '#4ade80' },
+  { name: "Didn't reach out — felt pointless", pct: 67, color: '#a78bfa' },
+  { name: 'Isolated, no words for it', pct: 61, color: '#fb7185' },
+];
+
+const feedMessages = [
+  { text: '<strong>2nd year Engineering</strong> — couldn\'t attend wellness event during midterms', color: '#f59e0b', time: '2 min ago' },
+  { text: '<strong>3rd year CS</strong> — skipped two club meetings to finish assignments', color: '#60a5fa', time: '5 min ago' },
+  { text: '<strong>1st year Commerce</strong> — felt behind but afraid to ask for help', color: '#4ade80', time: '9 min ago' },
+  { text: '<strong>4th year Life Sci</strong> — institution knows, nothing has changed', color: '#f87171', time: '11 min ago' },
+  { text: '<strong>2nd year Arts</strong> — compared myself to top students, felt inadequate', color: '#a78bfa', time: '14 min ago' },
+  { text: '<strong>3rd year Engineering</strong> — 52 hrs coursework, zero social contact', color: '#fb7185', time: '18 min ago' },
+  { text: '<strong>1st year CS</strong> — reached out to advisor, got generic response', color: '#60a5fa', time: '22 min ago' },
+];
+
+function buildBarChart() {
+  const container = document.getElementById('bar-chart');
+  const max = Math.max(...barData);
+  barData.forEach((v, i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const fill = document.createElement('div');
+    fill.className = 'bar-fill' + (i === barData.length - 1 ? ' highlight' : '');
+    fill.style.height = '0px';
+    fill.title = v + ' signals';
+    col.appendChild(fill);
+    container.appendChild(col);
+    setTimeout(() => {
+      fill.style.height = Math.round((v / max) * 140) + 'px';
+    }, 200 + i * 80);
+  });
+}
+
+function buildDonut() {
+  const svg = document.getElementById('donut-svg');
+  const cx = 70, cy = 70, r = 52, stroke = 18;
+  const circ = 2 * Math.PI * r;
+  let offset = 0;
+
+  donutData.forEach((d, i) => {
+    const dash = (d.pct / 100) * circ;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', d.color);
+    circle.setAttribute('stroke-width', stroke);
+    circle.setAttribute('stroke-dasharray', dash + ' ' + (circ - dash));
+    circle.setAttribute('stroke-dashoffset', -offset + circ / 4);
+    circle.setAttribute('opacity', '0.85');
+    circle.style.transition = 'stroke-dasharray 1s ' + (i * 0.15) + 's ease';
+    svg.appendChild(circle);
+    offset += dash;
+  });
+
+  // center text
+  const text1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  text1.setAttribute('x', cx); text1.setAttribute('y', cy - 6);
+  text1.setAttribute('text-anchor', 'middle');
+  text1.setAttribute('fill', '#e8eaed');
+  text1.setAttribute('font-family', 'Syne, sans-serif');
+  text1.setAttribute('font-size', '22');
+  text1.setAttribute('font-weight', '800');
+  text1.textContent = '847';
+  svg.appendChild(text1);
+
+  const text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  text2.setAttribute('x', cx); text2.setAttribute('y', cy + 12);
+  text2.setAttribute('text-anchor', 'middle');
+  text2.setAttribute('fill', '#6b7280');
+  text2.setAttribute('font-size', '11');
+  text2.textContent = 'signals';
+  svg.appendChild(text2);
+
+  const legend = document.getElementById('donut-legend');
+  donutData.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'legend-row';
+    row.innerHTML = `
+      <span class="legend-name"><span class="legend-dot" style="background:${d.color}"></span>${d.label}</span>
+      <span class="legend-pct">${d.pct}%</span>
+    `;
+    legend.appendChild(row);
+  });
+}
+
+function buildFriction() {
+  const container = document.getElementById('friction-list');
+  frictionData.forEach((d, i) => {
+    const item = document.createElement('div');
+    item.className = 'friction-item';
+    item.innerHTML = `
+      <div class="friction-top">
+        <span class="friction-name">${d.name}</span>
+        <span class="friction-pct" style="color:${d.color}">${d.pct}%</span>
+      </div>
+      <div class="friction-track">
+        <div class="friction-fill" style="background:${d.color}; width:${d.pct}%"></div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.friction-fill').forEach(f => f.classList.add('show'));
+  }, 400);
+}
+
+function buildFeed() {
+  const feed = document.getElementById('signal-feed');
+  feedMessages.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'feed-item';
+    item.innerHTML = `
+      <div class="feed-dot" style="background:${m.color}"></div>
+      <div>
+        <div class="feed-text">${m.text}</div>
+        <div class="feed-time">${m.time}</div>
+      </div>
+    `;
+    feed.appendChild(item);
+  });
+}
+
+// ── NEW FEED ITEMS ──
+const newMessages = [
+  { text: '<strong>2nd year Engineering</strong> — 48 hrs of work, zero time for anything else', color: '#f59e0b' },
+  { text: '<strong>1st year CS</strong> — everyone seems fine, I feel like I\'m drowning', color: '#4ade80' },
+  { text: '<strong>3rd year Econ</strong> — dropped a club I cared about to survive exams', color: '#60a5fa' },
+  { text: '<strong>2nd year Sci</strong> — told advisor I was struggling, got a pamphlet', color: '#f87171' },
+  { text: '<strong>4th year Arts</strong> — no one checks in until grades drop', color: '#a78bfa' },
+];
+
+let msgIdx = 0;
+setInterval(() => {
+  const feed = document.getElementById('signal-feed');
+  const m = newMessages[msgIdx % newMessages.length];
+  msgIdx++;
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `
+    <div class="feed-dot" style="background:${m.color}"></div>
+    <div>
+      <div class="feed-text">${m.text}</div>
+      <div class="feed-time">just now</div>
+    </div>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  if (feed.children.length > 12) feed.removeChild(feed.lastChild);
+
+  // update live counter
+  const el = document.getElementById('sn1');
+  el.textContent = (parseInt(el.textContent) + 1).toString();
+}, 6000);
+
+// ── REVEAL ON SCROLL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      if (e.target.id === 'dashboard-section') {
+        buildBarChart();
+        buildDonut();
+        buildFriction();
+        buildFeed();
+        observer.unobserve(e.target);
+      }
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── BAR TOOLTIPS ──
+document.addEventListener('mousemove', (e) => {
+  const tip = document.getElementById('tooltip');
+  if (e.target.classList.contains('bar-fill')) {
+    tip.textContent = e.target.title;
+    tip.style.opacity = '1';
+    tip.style.left = (e.clientX + 12) + 'px';
+    tip.style.top = (e.clientY - 28) + 'px';
+  } else {
+    tip.style.opacity = '0';
+  }
+});
+</script>
+</body>
+</html>
