@@ -1361,6 +1361,8 @@ footer {
 <div class="tooltip" id="tooltip"></div>
 
 <script>
+const API = 'http://localhost:8000';
+
 // ── STATE ──
 const state = { year: null, barriers: [], workload: 30, visibility: null, step: 0 };
 
@@ -1393,10 +1395,10 @@ setTimeout(() => {
 }, 600);
 
 // ── FORM ──
-function selectYear(y) {
+function selectYear(y, el) {
   state.year = y;
   document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
+  el.classList.add('selected');
   document.getElementById('next0').disabled = false;
 }
 
@@ -1447,35 +1449,110 @@ function submitSignal() {
   }, 300);
 }
 
-// ── DASHBOARD DATA ──
-const barData = [312, 445, 398, 521, 610, 578, 689, 724, 791, 812, 847];
-const donutData = [
-  { label: 'First year', pct: 31, color: '#4ade80' },
-  { label: 'Second year', pct: 28, color: '#60a5fa' },
-  { label: 'Third year', pct: 24, color: '#f59e0b' },
-  { label: 'Fourth year+', pct: 17, color: '#f87171' },
-];
+// ── SUBMIT TO REAL BACKEND ────────────────────────────────────────────────
+async function submitSignal() {
+  const barriers = [...document.querySelectorAll('#barriers .chip.selected')]
+    .map(c => c.textContent.trim());
 
-const frictionData = [
-  { name: 'Skipped wellbeing for coursework', pct: 84, color: '#f87171' },
-  { name: 'Felt invisible to the institution', pct: 91, color: '#f59e0b' },
-  { name: "Couldn't join clubs/events", pct: 79, color: '#60a5fa' },
-  { name: 'Felt behind despite trying', pct: 73, color: '#4ade80' },
-  { name: "Didn't reach out — felt pointless", pct: 67, color: '#a78bfa' },
-  { name: 'Isolated, no words for it', pct: 61, color: '#fb7185' },
-];
+  const payload = {
+    year:       String(state.year),
+    barriers:   barriers,
+    workload:   state.workload,
+    visibility: state.visibility,
+  };
 
-const feedMessages = [
-  { text: '<strong>2nd year Engineering</strong> — couldn\'t attend wellness event during midterms', color: '#f59e0b', time: '2 min ago' },
-  { text: '<strong>3rd year CS</strong> — skipped two club meetings to finish assignments', color: '#60a5fa', time: '5 min ago' },
-  { text: '<strong>1st year Commerce</strong> — felt behind but afraid to ask for help', color: '#4ade80', time: '9 min ago' },
-  { text: '<strong>4th year Life Sci</strong> — institution knows, nothing has changed', color: '#f87171', time: '11 min ago' },
-  { text: '<strong>2nd year Arts</strong> — compared myself to top students, felt inadequate', color: '#a78bfa', time: '14 min ago' },
-  { text: '<strong>3rd year Engineering</strong> — 52 hrs coursework, zero social contact', color: '#fb7185', time: '18 min ago' },
-  { text: '<strong>1st year CS</strong> — reached out to advisor, got generic response', color: '#60a5fa', time: '22 min ago' },
-];
+  try {
+    const res  = await fetch(`${API}/signals`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+    updateDashboard(data);
 
-function buildBarChart() {
+    // Update contribution bars with real numbers
+    if (data.ticker) {
+      document.getElementById('cpct1').textContent = data.ticker.cant_join + '%';
+      document.getElementById('cb1').style.width   = data.ticker.cant_join + '%';
+      document.getElementById('cpct2').textContent = data.ticker.skipped_wb + '%';
+      document.getElementById('cb2').style.width   = data.ticker.skipped_wb + '%';
+      document.getElementById('cpct3').textContent = data.stat_cards.pct_invisible + '%';
+      document.getElementById('cb3').style.width   = data.stat_cards.pct_invisible + '%';
+    }
+  } catch (e) {
+    console.warn('Backend offline — showing local success state', e);
+  }
+
+  document.getElementById('form-main').style.display  = 'none';
+  document.getElementById('form-success').style.display = 'block';
+  setTimeout(() => {
+    document.querySelectorAll('.contribution-bar').forEach(b => b.classList.add('show'));
+  }, 300);
+}
+
+// ── UPDATE DASHBOARD WITH API DATA ────────────────────────────────────────
+function updateDashboard(data) {
+  if (!data) return;
+
+  // Stat cards
+  if (data.stat_cards) {
+    document.getElementById('sn1').textContent = data.stat_cards.total_signals;
+    document.getElementById('sn2').textContent = data.stat_cards.avg_workload + 'h';
+    document.getElementById('sn3').textContent = data.stat_cards.pct_invisible + '%';
+    document.getElementById('sn4').textContent = data.stat_cards.pct_skipped + '%';
+  }
+
+  // Ticker
+  if (data.ticker) {
+    animCount(document.getElementById('tp1'), data.ticker.cant_join);
+    animCount(document.getElementById('tp2'), data.ticker.skipped_wb);
+    animCount(document.getElementById('tp3'), data.ticker.felt_behind);
+    animCount(document.getElementById('tp4'), data.ticker.didnt_reach);
+    ['t1','t2','t3','t4'].forEach(id => {
+      setTimeout(() => document.getElementById(id).classList.add('loaded'), 200);
+    });
+  }
+
+  // Bar chart — rebuild if data changed
+  if (data.bar_chart) {
+    const container = document.getElementById('bar-chart');
+    container.innerHTML = '';
+    buildBarChart(data.bar_chart);
+  }
+
+  // Donut — rebuild
+  if (data.donut) {
+    document.getElementById('donut-svg').innerHTML   = '';
+    document.getElementById('donut-legend').innerHTML = '';
+    buildDonut(data.donut, data.stat_cards ? data.stat_cards.total_signals : 0);
+  }
+
+  // Friction bars — rebuild
+  if (data.friction) {
+    document.getElementById('friction-list').innerHTML = '';
+    buildFriction(data.friction);
+  }
+
+  // Feed — prepend new items
+  if (data.feed && data.feed.length) {
+    const feed = document.getElementById('signal-feed');
+    feed.innerHTML = '';
+    data.feed.forEach(m => {
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      item.innerHTML = `
+        <div class="feed-dot" style="background:${m.color}"></div>
+        <div>
+          <div class="feed-text">${m.text}</div>
+          <div class="feed-time">${m.time}</div>
+        </div>`;
+      feed.appendChild(item);
+    });
+  }
+}
+
+// ── DASHBOARD BUILDERS ────────────────────────────────────────────────────
+function buildBarChart(barData) {
   const container = document.getElementById('bar-chart');
   const max = Math.max(...barData);
   barData.forEach((v, i) => {
@@ -1566,36 +1643,73 @@ function buildFriction() {
   }, 400);
 }
 
-function buildFeed() {
-  const feed = document.getElementById('signal-feed');
-  feedMessages.forEach(m => {
-    const item = document.createElement('div');
-    item.className = 'feed-item';
-    item.innerHTML = `
-      <div class="feed-dot" style="background:${m.color}"></div>
-      <div>
-        <div class="feed-text">${m.text}</div>
-        <div class="feed-time">${m.time}</div>
-      </div>
-    `;
-    feed.appendChild(item);
-  });
-}
+// ── FALLBACK DEMO DATA (shown if backend is offline) ─────────────────────
+const DEMO = {
+  ticker:     { cant_join: 79, skipped_wb: 84, felt_behind: 73, didnt_reach: 67 },
+  stat_cards: { total_signals: 847, avg_workload: 38, pct_invisible: 91, pct_skipped: 84 },
+  bar_chart:  [312, 445, 398, 521, 610, 578, 689, 724, 791, 812, 847],
+  donut: [
+    { label: 'First year',   pct: 31, color: '#4ade80' },
+    { label: 'Second year',  pct: 28, color: '#60a5fa' },
+    { label: 'Third year',   pct: 24, color: '#f59e0b' },
+    { label: 'Fourth year+', pct: 17, color: '#f87171' },
+  ],
+  friction: [
+    { name: 'Skipped wellbeing for coursework',  pct: 84, color: '#f87171' },
+    { name: 'Felt invisible to the institution', pct: 91, color: '#f59e0b' },
+    { name: "Couldn't join clubs/events",        pct: 79, color: '#60a5fa' },
+    { name: 'Felt behind despite trying',        pct: 73, color: '#4ade80' },
+    { name: "Didn't reach out — felt pointless", pct: 67, color: '#a78bfa' },
+    { name: 'Isolated, no words for it',         pct: 61, color: '#fb7185' },
+  ],
+  feed: [
+    { text: "<strong>2nd year Engineering</strong> — couldn't attend wellness event during midterms", color: '#f59e0b', time: '2 min ago' },
+    { text: '<strong>3rd year CS</strong> — skipped two club meetings to finish assignments',          color: '#60a5fa', time: '5 min ago' },
+    { text: '<strong>1st year Commerce</strong> — felt behind but afraid to ask for help',            color: '#4ade80', time: '9 min ago' },
+    { text: '<strong>4th year Life Sci</strong> — institution knows, nothing has changed',            color: '#f87171', time: '11 min ago' },
+    { text: '<strong>2nd year Arts</strong> — compared myself to top students, felt inadequate',      color: '#a78bfa', time: '14 min ago' },
+    { text: '<strong>3rd year Engineering</strong> — 52 hrs coursework, zero social contact',         color: '#fb7185', time: '18 min ago' },
+    { text: '<strong>1st year CS</strong> — reached out to advisor, got generic response',            color: '#60a5fa', time: '22 min ago' },
+  ],
+};
 
-// ── NEW FEED ITEMS ──
-const newMessages = [
-  { text: '<strong>2nd year Engineering</strong> — 48 hrs of work, zero time for anything else', color: '#f59e0b' },
-  { text: '<strong>1st year CS</strong> — everyone seems fine, I feel like I\'m drowning', color: '#4ade80' },
-  { text: '<strong>3rd year Econ</strong> — dropped a club I cared about to survive exams', color: '#60a5fa' },
-  { text: '<strong>2nd year Sci</strong> — told advisor I was struggling, got a pamphlet', color: '#f87171' },
-  { text: '<strong>4th year Arts</strong> — no one checks in until grades drop', color: '#a78bfa' },
+// ── AUTO-REFRESH LIVE FEED ────────────────────────────────────────────────
+const liveFeedMessages = [
+  { text: "<strong>2nd year Engineering</strong> — 48 hrs of work, zero time for anything else", color: '#f59e0b' },
+  { text: "<strong>1st year CS</strong> — everyone seems fine, I feel like I'm drowning",        color: '#4ade80' },
+  { text: "<strong>3rd year Econ</strong> — dropped a club I cared about to survive exams",      color: '#60a5fa' },
+  { text: "<strong>2nd year Sci</strong> — told advisor I was struggling, got a pamphlet",       color: '#f87171' },
+  { text: "<strong>4th year Arts</strong> — no one checks in until grades drop",                 color: '#a78bfa' },
 ];
 
-let msgIdx = 0;
-setInterval(() => {
+let liveMsgIdx = 0;
+setInterval(async () => {
+  // Try to pull a fresh feed from the backend first
+  try {
+    const res  = await fetch(`${API}/stats`);
+    const data = await res.json();
+    if (data.feed && data.feed.length) {
+      const feed = document.getElementById('signal-feed');
+      const m    = data.feed[0];
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      item.innerHTML = `
+        <div class="feed-dot" style="background:${m.color}"></div>
+        <div>
+          <div class="feed-text">${m.text}</div>
+          <div class="feed-time">just now</div>
+        </div>`;
+      feed.insertBefore(item, feed.firstChild);
+      if (feed.children.length > 12) feed.removeChild(feed.lastChild);
+      document.getElementById('sn1').textContent = data.stat_cards.total_signals;
+      return;
+    }
+  } catch (_) {}
+
+  // Fallback: cycle demo messages
   const feed = document.getElementById('signal-feed');
-  const m = newMessages[msgIdx % newMessages.length];
-  msgIdx++;
+  const m    = liveFeedMessages[liveMsgIdx % liveFeedMessages.length];
+  liveMsgIdx++;
   const item = document.createElement('div');
   item.className = 'feed-item';
   item.innerHTML = `
@@ -1603,27 +1717,28 @@ setInterval(() => {
     <div>
       <div class="feed-text">${m.text}</div>
       <div class="feed-time">just now</div>
-    </div>
-  `;
+    </div>`;
   feed.insertBefore(item, feed.firstChild);
   if (feed.children.length > 12) feed.removeChild(feed.lastChild);
-
-  // update live counter
   const el = document.getElementById('sn1');
-  el.textContent = (parseInt(el.textContent) + 1).toString();
+  if (el.textContent !== '—') el.textContent = parseInt(el.textContent) + 1;
 }, 6000);
 
-// ── REVEAL ON SCROLL ──
+// ── SCROLL REVEAL + DASHBOARD INIT ───────────────────────────────────────
+let dashboardBuilt = false;
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       e.target.classList.add('visible');
-      if (e.target.id === 'dashboard-section') {
-        buildBarChart();
-        buildDonut();
-        buildFriction();
-        buildFeed();
+      if (e.target.id === 'dashboard-section' && !dashboardBuilt) {
+        dashboardBuilt = true;
         observer.unobserve(e.target);
+        // Build with whatever data we have (API or demo)
+        fetch(`${API}/stats`)
+          .then(r => r.json())
+          .then(data => updateDashboard(data))
+          .catch(() => updateDashboard(DEMO));
       }
     }
   });
@@ -1631,18 +1746,47 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// ── BAR TOOLTIPS ──
+// ── BAR TOOLTIPS ─────────────────────────────────────────────────────────
 document.addEventListener('mousemove', (e) => {
   const tip = document.getElementById('tooltip');
   if (e.target.classList.contains('bar-fill')) {
-    tip.textContent = e.target.title;
+    tip.textContent  = e.target.title;
     tip.style.opacity = '1';
-    tip.style.left = (e.clientX + 12) + 'px';
-    tip.style.top = (e.clientY - 28) + 'px';
+    tip.style.left    = (e.clientX + 12) + 'px';
+    tip.style.top     = (e.clientY - 28) + 'px';
   } else {
     tip.style.opacity = '0';
   }
 });
+
+// ── BOOT: load ticker from API (or demo) ─────────────────────────────────
+fetch(`${API}/stats`)
+  .then(r => r.json())
+  .then(data => {
+    if (data.ticker) {
+      setTimeout(() => {
+        animCount(document.getElementById('tp1'), data.ticker.cant_join);
+        animCount(document.getElementById('tp2'), data.ticker.skipped_wb);
+        animCount(document.getElementById('tp3'), data.ticker.felt_behind);
+        animCount(document.getElementById('tp4'), data.ticker.didnt_reach);
+        ['t1','t2','t3','t4'].forEach(id =>
+          setTimeout(() => document.getElementById(id).classList.add('loaded'), 200)
+        );
+      }, 600);
+    }
+  })
+  .catch(() => {
+    // Backend offline — show demo ticker
+    setTimeout(() => {
+      animCount(document.getElementById('tp1'), DEMO.ticker.cant_join);
+      animCount(document.getElementById('tp2'), DEMO.ticker.skipped_wb);
+      animCount(document.getElementById('tp3'), DEMO.ticker.felt_behind);
+      animCount(document.getElementById('tp4'), DEMO.ticker.didnt_reach);
+      ['t1','t2','t3','t4'].forEach(id =>
+        setTimeout(() => document.getElementById(id).classList.add('loaded'), 200)
+      );
+    }, 600);
+  });
 </script>
 </body>
 </html>
