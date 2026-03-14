@@ -29,7 +29,7 @@ def get_stats():
         visibility_counts[v] = visibility_counts.get(v, 0) + 1
 
     barrier_pcts = {
-        b: round((count / total) 100)
+        b: round((count / total) * 100)
         for b, count in barrier_counts.items()
     }
 
