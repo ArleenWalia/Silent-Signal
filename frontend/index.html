@@ -3,1787 +3,1307 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Silent Signal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<title>Silent Signal — v4 AI Powered</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #07080a;
-  --surface: #0f1114;
-  --surface2: #161a1f;
-  --border: rgba(255,255,255,0.07);
-  --border-bright: rgba(255,255,255,0.14);
-  --text: #e8eaed;
-  --muted: #6b7280;
-  --accent: #4ade80;
-  --accent2: #f59e0b;
-  --accent3: #60a5fa;
-  --danger: #f87171;
-  --signal: #4ade80;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  cursor: default;
-}
-
-/* ── NOISE OVERLAY ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-  opacity: 0.025;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* ── NAV ── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 48px;
-  background: rgba(7,8,10,0.8);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-
-.nav-logo {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  letter-spacing: -0.5px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.logo-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-  0%,100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
-  50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(74,222,128,0); }
-}
-
-.nav-links { display: flex; gap: 32px; align-items: center; }
-.nav-links a {
-  font-size: 13px;
-  color: var(--muted);
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  transition: color .2s;
-}
-.nav-links a:hover { color: var(--text); }
-
-.nav-cta {
-  font-family: 'Syne', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 20px;
-  background: var(--accent);
-  color: #07080a;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all .2s;
-  letter-spacing: 0.02em;
-}
-.nav-cta:hover { background: #86efac; transform: translateY(-1px); }
-
-/* ── SECTIONS ── */
-.page { display: none; }
-.page.active { display: block; }
-
-/* ── HERO ── */
-#hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 120px 48px 80px;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-grid-bg {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(74,222,128,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(74,222,128,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
-}
-
-.hero-glow {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 400px;
-  background: radial-gradient(ellipse, rgba(74,222,128,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.hero-tag {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid rgba(74,222,128,0.2);
-  background: rgba(74,222,128,0.05);
-  padding: 6px 14px;
-  border-radius: 100px;
-  margin-bottom: 32px;
-  animation: fadeUp 0.6s ease both;
-}
-
-.hero-title {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(52px, 8vw, 96px);
-  font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  text-align: center;
-  max-width: 900px;
-  animation: fadeUp 0.7s 0.1s ease both;
-}
-
-.hero-title .line2 { color: var(--accent); }
-
-.hero-sub {
-  font-size: 17px;
-  font-weight: 300;
-  color: var(--muted);
-  text-align: center;
-  max-width: 520px;
-  line-height: 1.7;
-  margin-top: 28px;
-  animation: fadeUp 0.7s 0.2s ease both;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 48px;
-  animation: fadeUp 0.7s 0.3s ease both;
-}
-
-.btn-primary {
-  font-family: 'Syne', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 14px 32px;
-  background: var(--accent);
-  color: #07080a;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all .2s;
-  letter-spacing: 0.01em;
-}
-.btn-primary:hover { background: #86efac; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(74,222,128,0.2); }
-
-.btn-ghost {
-  font-family: 'Syne', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 14px 32px;
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border-bright);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all .2s;
-}
-.btn-ghost:hover { background: var(--surface2); border-color: rgba(255,255,255,0.25); }
-
-/* ── LIVE TICKER ── */
-.hero-ticker {
-  margin-top: 72px;
-  width: 100%;
-  max-width: 900px;
-  animation: fadeUp 0.7s 0.4s ease both;
-}
-
-.ticker-label {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ticker-label::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: pulse-dot 1.5s ease-in-out infinite;
-}
-
-.ticker-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.ticker-item {
-  background: var(--surface);
-  padding: 20px 24px;
-  position: relative;
-  overflow: hidden;
-}
-
-.ticker-item::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 1s ease;
-}
-
-.ticker-item.loaded::after { transform: scaleX(1); }
-
-.ticker-pct {
-  font-family: 'Syne', sans-serif;
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--accent);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-
-.ticker-desc {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-/* ── ABOUT SECTION ── */
-#about-section {
-  padding: 120px 48px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.section-label {
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 20px;
-}
-
-.section-title {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(32px, 4vw, 52px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 24px;
-}
-
-.about-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  margin-top: 64px;
-  align-items: start;
-}
-
-.about-text p {
-  font-size: 16px;
-  line-height: 1.8;
-  color: var(--muted);
-  margin-bottom: 20px;
-}
-
-.about-text p strong { color: var(--text); font-weight: 500; }
-
-.about-callout {
-  border-left: 2px solid var(--accent);
-  padding: 20px 24px;
-  background: rgba(74,222,128,0.03);
-  border-radius: 0 8px 8px 0;
-  margin-top: 32px;
-}
-
-.about-callout p {
-  font-family: 'Syne', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text) !important;
-  line-height: 1.5;
-  margin: 0 !important;
-}
-
-.about-cards { display: flex; flex-direction: column; gap: 16px; }
-
-.about-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px;
-  transition: border-color .2s, transform .2s;
-}
-
-.about-card:hover {
-  border-color: var(--border-bright);
-  transform: translateX(4px);
-}
-
-.about-card-icon {
-  font-size: 22px;
-  margin-bottom: 12px;
-}
-
-.about-card h4 {
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
-}
-
-.about-card p {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-/* ── CHECK-IN FORM ── */
-#checkin-section {
-  padding: 120px 48px;
-  max-width: 780px;
-  margin: 0 auto;
-}
-
-.form-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 48px;
-  position: relative;
-  overflow: hidden;
-}
-
-.form-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0.5;
-}
-
-.form-header { margin-bottom: 40px; }
-
-.form-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
-
-.form-sub {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.anon-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid rgba(74,222,128,0.2);
-  background: rgba(74,222,128,0.05);
-  padding: 4px 10px;
-  border-radius: 100px;
-  margin-bottom: 16px;
-}
-
-.form-step { display: none; }
-.form-step.active { display: block; animation: fadeUp 0.3s ease; }
-
-.step-indicator {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 32px;
-}
-
-.step-dot {
-  height: 3px;
-  border-radius: 2px;
-  background: var(--border-bright);
-  flex: 1;
-  transition: background .3s;
-}
-.step-dot.active { background: var(--accent); }
-.step-dot.done { background: rgba(74,222,128,0.4); }
-
-.question-label {
-  font-family: 'Syne', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-  line-height: 1.3;
-}
-
-.question-hint {
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 24px;
-}
-
-/* Multi-select chips */
-.chip-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 32px;
-}
-
-.chip {
-  font-size: 13px;
-  padding: 10px 18px;
-  border: 1px solid var(--border-bright);
-  background: var(--surface2);
-  color: var(--muted);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all .15s;
-  user-select: none;
-  line-height: 1.3;
-}
-
-.chip:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
-
-.chip.selected {
-  background: rgba(74,222,128,0.08);
-  border-color: rgba(74,222,128,0.4);
-  color: var(--accent);
-}
-
-/* Slider */
-.slider-wrap { margin-bottom: 32px; }
-
-.slider-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-
-.custom-slider {
-  width: 100%;
-  height: 4px;
-  appearance: none;
-  background: var(--border-bright);
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-}
-
-.custom-slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--accent);
-  cursor: pointer;
-  border: 3px solid var(--bg);
-  box-shadow: 0 0 0 1px var(--accent);
-  transition: transform .15s;
-}
-
-.custom-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-
-.slider-value {
-  text-align: center;
-  font-family: 'Syne', sans-serif;
-  font-size: 40px;
-  font-weight: 800;
-  color: var(--accent);
-  margin-top: 16px;
-}
-
-.slider-value span { font-size: 20px; color: var(--muted); }
-
-/* Year select */
-.year-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 32px;
-}
-
-.year-btn {
-  padding: 16px;
-  background: var(--surface2);
-  border: 1px solid var(--border-bright);
-  color: var(--muted);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all .15s;
-  text-align: center;
-}
-
-.year-btn:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
-
-.year-btn.selected {
-  background: rgba(74,222,128,0.08);
-  border-color: rgba(74,222,128,0.4);
-  color: var(--accent);
-}
-
-.year-btn .year-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 22px;
-  font-weight: 800;
-  display: block;
-}
-
-.year-btn .year-label {
-  font-size: 11px;
-  margin-top: 2px;
-  display: block;
-}
-
-/* Form nav */
-.form-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.btn-back {
-  font-size: 13px;
-  color: var(--muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color .2s;
-  padding: 0;
-}
-.btn-back:hover { color: var(--text); }
-
-.btn-next {
-  font-family: 'Syne', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 12px 28px;
-  background: var(--accent);
-  color: #07080a;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all .2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.btn-next:hover { background: #86efac; transform: translateY(-1px); }
-.btn-next:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-
-/* ── SUCCESS STATE ── */
-.success-state {
-  text-align: center;
-  padding: 24px 0;
-  animation: fadeUp 0.5s ease;
-}
-
-.success-icon {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  background: rgba(74,222,128,0.1);
-  border: 1px solid rgba(74,222,128,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 24px;
-  font-size: 28px;
-}
-
-.success-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 12px;
-}
-
-.success-msg {
-  font-size: 15px;
-  color: var(--muted);
-  line-height: 1.7;
-  max-width: 400px;
-  margin: 0 auto 32px;
-}
-
-.signal-contribution {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 24px;
-  margin-bottom: 28px;
-  text-align: left;
-}
-
-.contribution-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.contribution-row:last-child { margin-bottom: 0; }
-
-.contribution-bar-wrap {
-  flex: 1;
-  height: 6px;
-  background: var(--border-bright);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.contribution-bar {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 3px;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 1s 0.3s ease;
-}
-
-.contribution-bar.show { transform: scaleX(1); }
-
-.contribution-label {
-  font-size: 12px;
-  color: var(--muted);
-  min-width: 160px;
-}
-
-.contribution-pct {
-  font-family: 'Syne', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  min-width: 36px;
-  text-align: right;
-}
+:root{
+  --bg:#08070f;--s1:#100e1a;--s2:#17142a;--s3:#1e1a34;
+  --bd:rgba(180,160,255,0.08);--bdb:rgba(180,160,255,0.18);
+  --tx:#ede9ff;--mt:#7b7299;
+  --ac:#b89dff;--ac2:#d4bbff;--adim:rgba(184,157,255,0.11);--aglow:rgba(184,157,255,0.05);
+  --gn:#6ee7b7;--am:#fbbf24;--rd:#f87171;--bl:#93c5fd;--pk:#f9a8d4;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:0.018;pointer-events:none;z-index:9999}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;background:rgba(8,7,15,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
+.nlogo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:-0.5px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.lpulse{width:9px;height:9px;border-radius:50%;background:var(--ac);animation:lp 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes lp{0%{box-shadow:0 0 0 0 rgba(184,157,255,0.7);transform:scale(1)}50%{box-shadow:0 0 0 8px rgba(184,157,255,0);transform:scale(1.25)}100%{box-shadow:0 0 0 0 rgba(184,157,255,0);transform:scale(1)}}
+.nlinks{display:flex;gap:4px;align-items:center}
+.nl{font-size:12px;color:var(--mt);background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;transition:all .2s;font-family:'DM Sans',sans-serif}
+.nl:hover{color:var(--tx);background:var(--adim)}
+.nl.active{color:var(--ac);background:var(--adim)}
+.ncta{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:8px 18px;background:var(--ac);color:#08070f;border:none;border-radius:8px;cursor:pointer;transition:all .2s;margin-left:6px}
+.ncta:hover{background:var(--ac2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(184,157,255,0.25)}
+
+/* PAGE */
+.page{display:none;min-height:100vh;padding-top:74px}
+.page.active{display:block}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.rv.visible{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+/* ── HOME ── */
+#ph{position:relative;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+.o1{width:600px;height:500px;top:-80px;left:50%;transform:translateX(-50%);background:rgba(184,157,255,0.07)}
+.o2{width:300px;height:300px;top:50%;right:-80px;background:rgba(110,231,183,0.04)}
+.o3{width:350px;height:350px;bottom:-60px;left:-60px;background:rgba(184,157,255,0.04)}
+.hgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(184,157,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(184,157,255,0.025) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,black,transparent 80%)}
+.hinner{max-width:860px;margin:0 auto;padding:80px 40px 48px;text-align:center;position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ac);border:1px solid rgba(184,157,255,0.2);background:rgba(184,157,255,0.05);padding:6px 14px;border-radius:100px;margin-bottom:28px;animation:fu .6s ease both}
+.htitle{font-family:'Syne',sans-serif;font-size:clamp(42px,6.5vw,80px);font-weight:800;line-height:.95;letter-spacing:-0.04em;animation:fu .7s .1s ease both}
+.hl{color:var(--ac)}
+.hdesc{font-size:16px;font-weight:300;color:var(--mt);line-height:1.8;max-width:520px;margin:22px auto 0;animation:fu .7s .2s ease both}
+.hbtns{display:flex;gap:10px;margin-top:36px;justify-content:center;flex-wrap:wrap;animation:fu .7s .3s ease both}
+.bp{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:13px 28px;background:var(--ac);color:#08070f;border:none;border-radius:9px;cursor:pointer;transition:all .2s}
+.bp:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,157,255,0.22)}
+.bgs{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;padding:13px 24px;background:transparent;color:var(--tx);border:1px solid var(--bdb);border-radius:9px;cursor:pointer;transition:all .2s}
+.bgs:hover{background:var(--s2)}
+
+/* MASCOT SVG */
+.mascot-zone{display:flex;flex-direction:column;align-items:center;margin:36px auto 0;width:fit-content;cursor:pointer;animation:fu .7s .4s ease both;user-select:none}
+#mascot-svg{transition:transform .15s;display:block}
+#mascot-svg:active{transform:scale(0.92)}
+.mascot-bubble{background:var(--s2);border:1px solid var(--bdb);border-radius:20px;padding:8px 16px;font-size:12px;color:var(--mt);margin-top:10px;min-height:34px;display:flex;align-items:center;justify-content:center;min-width:180px;transition:all .3s;text-align:center}
+@keyframes mascot-jump{0%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-30px) rotate(-8deg) scale(1.1)}50%{transform:translateY(-14px) rotate(5deg)}75%{transform:translateY(-4px) rotate(-2deg)}100%{transform:translateY(0) rotate(0deg)}}
+@keyframes mascot-spin{0%{transform:rotate(0) scale(1)}40%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}
+@keyframes mascot-wiggle{0%{transform:rotate(0)}15%{transform:rotate(-15deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-10deg)}60%{transform:rotate(7deg)}75%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
+@keyframes mascot-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+.do-jump{animation:mascot-jump .55s ease both}
+.do-spin{animation:mascot-spin .65s ease both}
+.do-wiggle{animation:mascot-wiggle .5s ease both}
+.do-bounce{animation:mascot-bounce .4s ease both}
+
+/* QUICK NAV */
+.qnav{max-width:960px;margin:0 auto;padding:0 40px 56px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;position:relative;z-index:1}
+.qcard{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:18px 14px;cursor:pointer;transition:all .22s;text-align:center}
+.qcard:hover{border-color:var(--bdb);transform:translateY(-4px);background:var(--s2);box-shadow:0 12px 32px rgba(184,157,255,0.06)}
+.qi{font-size:26px;margin-bottom:8px}
+.qt{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.qs{font-size:10px;color:var(--mt);line-height:1.4}
+
+/* TICKER */
+.tw{max-width:960px;margin:0 auto;padding:0 40px 72px;position:relative;z-index:1}
+.tlab-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--ac);animation:lp 1.8s ease-in-out infinite;flex-shrink:0}
+.tlab{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mt)}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.tc{background:var(--s1);padding:20px 22px;position:relative;overflow:hidden;transition:background .2s;cursor:pointer}
+.tc:hover{background:var(--s2)}
+.tc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--ac);transform:scaleX(0);transform-origin:left;transition:transform 1.4s ease}
+.tc.loaded::after{transform:scaleX(1)}
+.tnum{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--ac);line-height:1;margin-bottom:5px}
+.tdesc{font-size:11px;color:var(--mt);line-height:1.4}
+
+/* SHARED */
+.pi{max-width:1020px;margin:0 auto;padding:52px 40px 80px}
+.pey{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ac);margin-bottom:12px}
+.ptitle{font-family:'Syne',sans-serif;font-size:clamp(30px,4.5vw,54px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:40px}
+.cc{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:22px 24px}
+.cct{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:-0.01em;margin-bottom:3px}
+.ccs{font-size:12px;color:var(--mt);margin-bottom:18px}
+
+/* ── AI INSIGHT PANEL ── */
+.ai-panel{background:linear-gradient(135deg,var(--s2),var(--s3));border:1px solid rgba(184,157,255,0.2);border-radius:16px;padding:24px 28px;margin-bottom:20px;position:relative;overflow:hidden}
+.ai-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:.5}
+.ai-tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ac);border:1px solid rgba(184,157,255,0.2);background:rgba(184,157,255,0.06);padding:4px 10px;border-radius:100px;margin-bottom:14px}
+.ai-content{font-size:14px;color:var(--tx);line-height:1.75;min-height:48px}
+.ai-loading{display:flex;align-items:center;gap:10px;color:var(--mt);font-size:13px}
+.ai-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ac);animation:dot-pulse 1.2s ease-in-out infinite}
+.ai-dots span:nth-child(2){animation-delay:.2s}
+.ai-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot-pulse{0%,80%,100%{transform:scale(0.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.ai-reframe{background:rgba(110,231,183,0.06);border:1px solid rgba(110,231,183,0.2);border-radius:10px;padding:14px 16px;margin-top:14px;font-size:13px;color:var(--gn);line-height:1.65;display:none}
+.ai-reframe-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(110,231,183,0.6);margin-bottom:6px}
 
 /* ── DASHBOARD ── */
-#dashboard-section {
-  padding: 120px 48px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
+.dtop{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px}
+.lbadge{display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ac);border:1px solid rgba(184,157,255,0.2);background:rgba(184,157,255,0.05);padding:6px 14px;border-radius:100px}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s}
+.sc:hover{border-color:var(--bdb)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.scp::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.scg::before{background:linear-gradient(90deg,var(--gn),transparent)}
+.sca::before{background:linear-gradient(90deg,var(--am),transparent)}
+.scr::before{background:linear-gradient(90deg,var(--rd),transparent)}
+.sclb{font-size:11px;color:var(--mt);margin-bottom:8px}
+.scn{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.scp .scn{color:var(--ac)}.scg .scn{color:var(--gn)}.sca .scn{color:var(--am)}.scr .scn{color:var(--rd)}
+.scd{font-size:11px;color:var(--mt)}
+.dbig{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}
+.bwrap{display:flex;align-items:flex-end;gap:6px;height:130px}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.bfill{width:100%;border-radius:4px 4px 0 0;background:rgba(184,157,255,0.18);border:1px solid rgba(184,157,255,0.3);transition:height 1s ease;cursor:pointer}
+.bfill:hover{background:rgba(184,157,255,0.42)}
+.bfill.hi{background:rgba(184,157,255,0.58);border-color:var(--ac)}
+.donut-container{position:relative;width:200px;height:200px;margin:0 auto}
+.donut-container svg{filter:drop-shadow(0 0 18px rgba(184,157,255,0.15))}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.dc-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--tx);line-height:1;transition:all .3s}
+.dc-sub{font-size:10px;color:var(--mt);margin-top:3px;transition:all .3s}
+.donut-seg{cursor:pointer;transition:opacity .2s}
+.donut-seg:hover{opacity:0.75}
+.dleg{display:flex;flex-direction:column;gap:9px;margin-top:18px}
+.dlr{display:flex;align-items:center;justify-content:space-between;font-size:12px;cursor:pointer;padding:5px 8px;border-radius:8px;transition:background .15s}
+.dlr:hover{background:var(--s2)}
+.dld{width:10px;height:10px;border-radius:3px;margin-right:8px;flex-shrink:0;transition:transform .2s}
+.dlr:hover .dld{transform:scale(1.3)}
+.dln{color:var(--mt);flex:1;display:flex;align-items:center;transition:color .2s}
+.dlr:hover .dln{color:var(--tx)}
+.dlp{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--tx)}
+@keyframes donut-spin{from{stroke-dashoffset:var(--full-circ)}to{stroke-dashoffset:var(--target-offset)}}
+@keyframes count-up{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.brow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.flist{display:flex;flex-direction:column;gap:11px}
+.ftop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.fname{font-size:12px;color:var(--tx)}
+.fpct{font-family:'Syne',sans-serif;font-size:12px;font-weight:700}
+.ftrack{height:4px;background:var(--bdb);border-radius:2px;overflow:hidden}
+.ffill{height:100%;border-radius:2px;transform:scaleX(0);transform-origin:left;transition:transform 1.3s ease}
+.ffill.show{transform:scaleX(1)}
+.feedwrap{overflow-y:auto;max-height:300px;padding:0 22px 18px}
+.feedwrap::-webkit-scrollbar{width:3px}
+.feedwrap::-webkit-scrollbar-thumb{background:var(--bdb);border-radius:2px}
+.fitem{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);animation:fi .4s ease}
+.fitem:last-child{border-bottom:none}
+@keyframes fi{from{opacity:0;transform:translateX(-8px)}to{opacity:1}}
+.fdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ftxt{font-size:12px;color:var(--mt);line-height:1.5}
+.ftxt strong{color:var(--tx);font-weight:500}
+.ftime{font-size:10px;color:rgba(123,114,153,0.5);margin-top:2px}
 
-.dash-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 48px;
-}
+/* AI CHAT */
+.ai-chat-card{background:linear-gradient(135deg,var(--s2),var(--s3));border:1px solid rgba(184,157,255,0.18);border-radius:20px;margin-top:14px;overflow:hidden;position:relative}
+.ai-chat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:.5}
+.ai-chat-header{padding:18px 22px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ai-chat-title-row{display:flex;align-items:center;gap:12px}
+.ai-chat-avatar{width:36px;height:36px;border-radius:10px;background:var(--adim);border:1px solid rgba(184,157,255,0.25);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ai-chat-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.ai-chat-status{font-size:11px;color:var(--ac);display:flex;align-items:center;gap:5px}
+.ai-chat-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ac);animation:lp 1.8s ease-in-out infinite;flex-shrink:0}
+.ai-chat-msgs{padding:18px 22px;display:flex;flex-direction:column;gap:12px;max-height:320px;overflow-y:auto;min-height:100px}
+.ai-chat-msgs::-webkit-scrollbar{width:3px}
+.ai-chat-msgs::-webkit-scrollbar-thumb{background:var(--bdb);border-radius:2px}
+.msg{display:flex;gap:10px;animation:fu .35s ease}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.msg.ai .msg-avatar{background:var(--adim);border:1px solid rgba(184,157,255,0.2)}
+.msg.user .msg-avatar{background:rgba(184,157,255,0.15);border:1px solid rgba(184,157,255,0.25)}
+.msg-bubble{max-width:82%;padding:11px 15px;border-radius:14px;font-size:13px;line-height:1.65}
+.msg.ai .msg-bubble{background:var(--s1);border:1px solid var(--bd);color:var(--tx);border-bottom-left-radius:4px}
+.msg.user .msg-bubble{background:var(--adim);border:1px solid rgba(184,157,255,0.25);color:var(--ac);border-bottom-right-radius:4px}
+.msg-typing{display:flex;align-items:center;gap:5px;padding:11px 15px;background:var(--s1);border:1px solid var(--bd);border-radius:14px;border-bottom-left-radius:4px;width:fit-content}
+.msg-typing span{width:5px;height:5px;border-radius:50%;background:var(--ac);animation:dot-pulse 1.2s ease-in-out infinite}
+.msg-typing span:nth-child(2){animation-delay:.2s}
+.msg-typing span:nth-child(3){animation-delay:.4s}
+.ai-quick-prompts{padding:0 22px 14px;display:flex;gap:7px;flex-wrap:wrap}
+.qprompt{font-size:11px;padding:6px 12px;background:var(--s1);border:1px solid var(--bdb);color:var(--mt);border-radius:100px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.qprompt:hover{border-color:rgba(184,157,255,0.4);color:var(--ac);background:var(--adim)}
+.ai-chat-input-row{padding:14px 22px;border-top:1px solid var(--bd);display:flex;gap:10px;align-items:center}
+.ai-chat-input{flex:1;background:var(--s1);border:1px solid var(--bdb);color:var(--tx);border-radius:10px;padding:10px 14px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;min-width:0}
+.ai-chat-input:focus{border-color:rgba(184,157,255,0.5)}
+.ai-chat-input::placeholder{color:var(--mt)}
+.ai-send{width:36px;height:36px;border-radius:10px;background:var(--ac);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.ai-send:hover{background:var(--ac2);transform:scale(1.05)}
 
-.live-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid rgba(74,222,128,0.2);
-  background: rgba(74,222,128,0.05);
-  padding: 6px 12px;
-  border-radius: 100px;
-}
+/* ── LEAGUES ── */
+.leagues-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+.league-card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:22px;position:relative;overflow:hidden;transition:all .2s;cursor:pointer}
+.league-card:hover{border-color:var(--bdb);transform:translateY(-3px)}
+.league-card.top{border-color:rgba(184,157,255,0.3)}
+.league-rank{position:absolute;top:14px;right:14px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:var(--adim);color:var(--ac)}
+.league-icon{font-size:32px;margin-bottom:10px}
+.league-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px}
+.league-desc{font-size:12px;color:var(--mt);line-height:1.5;margin-bottom:10px}
+.league-bar{height:4px;background:var(--bd);border-radius:2px;overflow:hidden;margin-bottom:7px}
+.league-fill{height:100%;border-radius:2px}
+.league-stats{display:flex;justify-content:space-between;font-size:11px;color:var(--mt)}
+.league-stats span{color:var(--tx);font-weight:500}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.badge{display:flex;align-items:center;gap:7px;background:var(--s1);border:1px solid var(--bd);border-radius:100px;padding:7px 14px;font-size:11px;color:var(--mt);transition:all .2s;cursor:pointer;position:relative}
+.badge:hover{border-color:var(--bdb);color:var(--tx)}
+.badge.earned{border-color:rgba(184,157,255,0.35);color:var(--ac);background:var(--adim)}
+.badge-icon{font-size:14px}
+.badge-locked::after{content:'🔒';font-size:9px;position:absolute;top:-3px;right:-3px}
 
-.live-badge::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: pulse-dot 1.5s ease-in-out infinite;
-}
+/* ── NYT-STYLE TRIVIA ── */
+.nyt-wrap{max-width:600px;margin:0 auto}
+.nyt-card{background:var(--s1);border:1px solid var(--bd);border-radius:20px;overflow:hidden}
+.nyt-header{padding:20px 28px 0;display:flex;align-items:center;justify-content:space-between}
+.nyt-streak{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--am);display:flex;align-items:center;gap:6px}
+.nyt-score-display{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--ac)}
+.nyt-progress-bar{height:3px;background:var(--bd);margin:16px 0 0}
+.nyt-progress-fill{height:100%;background:var(--ac);transition:width .5s ease}
+.nyt-body{padding:24px 28px 28px}
+.nyt-cat-badge{display:inline-block;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ac);border:1px solid rgba(184,157,255,0.2);background:rgba(184,157,255,0.05);padding:4px 10px;border-radius:100px;margin-bottom:14px}
+.nyt-q{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;line-height:1.3;margin-bottom:24px;color:var(--tx)}
+.nyt-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.nyt-opt{padding:16px 14px;background:var(--s2);border:2px solid var(--bdb);color:var(--tx);border-radius:12px;cursor:pointer;transition:all .18s;font-size:13px;text-align:left;font-family:'DM Sans',sans-serif;line-height:1.4;position:relative}
+.nyt-opt:hover:not(:disabled){border-color:rgba(184,157,255,0.45);background:var(--s3);transform:scale(1.01)}
+.nyt-opt.correct{background:rgba(110,231,183,0.1)!important;border-color:var(--gn)!important;color:var(--gn)!important;transform:none}
+.nyt-opt.wrong{background:rgba(248,113,113,0.08)!important;border-color:var(--rd)!important;color:var(--rd)!important;transform:none}
+.nyt-opt.reveal{background:rgba(110,231,183,0.04)!important;border-color:rgba(110,231,183,0.2)!important;color:rgba(110,231,183,0.7)!important;transform:none}
+.nyt-opt:disabled{cursor:default}
+.nyt-opt-letter{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--bdb);color:var(--mt);font-size:10px;font-weight:700;text-align:center;line-height:20px;margin-right:8px;flex-shrink:0;transition:all .2s}
+.nyt-opt.correct .nyt-opt-letter{background:var(--gn);color:#08070f}
+.nyt-opt.wrong .nyt-opt-letter{background:var(--rd);color:#fff}
+.nyt-feedback{background:var(--s3);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--mt);line-height:1.65;margin-bottom:18px;border-left:3px solid var(--ac);display:none;animation:fu .3s ease}
+.nyt-feedback.show{display:block}
+.nyt-result-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--bd);font-size:12px;color:var(--mt)}
+.nyt-next{width:100%;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:13px;background:var(--ac);color:#08070f;border:none;border-radius:10px;cursor:pointer;transition:all .2s;display:none}
+.nyt-next.show{display:block}
+.nyt-next:hover{background:var(--ac2)}
+/* end screen */
+.nyt-end{padding:28px;text-align:center}
+.nyt-end-emoji{font-size:52px;margin-bottom:14px;display:block}
+.nyt-end-score{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--ac);line-height:1}
+.nyt-end-label{font-size:12px;color:var(--mt);margin:6px 0 16px}
+.nyt-end-msg{font-size:14px;color:var(--tx);line-height:1.65;margin-bottom:20px;padding:0 16px}
+.nyt-share{background:var(--s2);border-radius:10px;padding:14px;font-family:'Syne',sans-serif;font-size:12px;color:var(--ac);letter-spacing:0.05em;margin-bottom:20px;word-break:break-all;line-height:1.6;cursor:pointer;border:1px solid var(--bdb);transition:border-color .2s}
+.nyt-share:hover{border-color:rgba(184,157,255,0.4)}
 
-/* Stat cards */
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
-}
+/* ── CHECKIN ── */
+.cw{max-width:660px;margin:0 auto;padding:52px 40px 80px}
+.fcard{background:var(--s1);border:1px solid var(--bd);border-radius:20px;padding:40px;position:relative;overflow:hidden}
+.fcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:.4}
+.apill{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ac);border:1px solid rgba(184,157,255,0.2);background:rgba(184,157,255,0.05);padding:5px 12px;border-radius:100px;margin-bottom:14px}
+.ftitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:5px}
+.fsub{font-size:13px;color:var(--mt);line-height:1.6;margin-bottom:28px}
+.sdots{display:flex;gap:5px;margin-bottom:28px}
+.sd{height:3px;border-radius:2px;flex:1;background:var(--bdb);transition:background .3s}
+.sd.active{background:var(--ac)}.sd.done{background:rgba(184,157,255,0.35)}
+.fstep{display:none;animation:fu .3s ease}.fstep.active{display:block}
+.ql{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;letter-spacing:-0.02em;line-height:1.3;margin-bottom:5px}
+.qh{font-size:12px;color:var(--mt);margin-bottom:18px}
+.ygrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.yb{padding:13px 6px;background:var(--s2);border:1px solid var(--bdb);color:var(--mt);border-radius:10px;cursor:pointer;text-align:center;transition:all .15s}
+.yb:hover{border-color:rgba(184,157,255,0.3);color:var(--tx)}
+.yb.sel{background:var(--adim);border-color:rgba(184,157,255,0.45);color:var(--ac)}
+.yn{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;display:block}
+.yl{font-size:10px;margin-top:2px;display:block}
+.cgrid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.chip{font-size:12px;padding:8px 13px;border:1px solid var(--bdb);background:var(--s2);color:var(--mt);border-radius:8px;cursor:pointer;transition:all .15s;user-select:none;line-height:1.35}
+.chip:hover{border-color:rgba(184,157,255,0.3);color:var(--tx)}
+.chip.sel{background:var(--adim);border-color:rgba(184,157,255,0.45);color:var(--ac)}
+/* ← THIS IS THE FIXED CUSTOM INPUT */
+.custom-row{display:flex;gap:8px;margin-bottom:20px;align-items:stretch}
+.custom-input{flex:1;background:var(--s2);border:1px solid var(--bdb);color:var(--tx);border-radius:8px;padding:10px 13px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;min-width:0}
+.custom-input:focus{border-color:rgba(184,157,255,0.5)}
+.custom-input::placeholder{color:var(--mt)}
+.custom-add-btn{flex-shrink:0;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:10px 16px;background:var(--adim);color:var(--ac);border:1px solid rgba(184,157,255,0.3);border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.custom-add-btn:hover{background:var(--ac);color:#08070f}
+.slw{margin-bottom:24px}
+.slabs{display:flex;justify-content:space-between;font-size:11px;color:var(--mt);margin-bottom:10px}
+input[type=range]{width:100%;height:4px;appearance:none;background:var(--bdb);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:var(--ac);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--ac);cursor:pointer;transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.sval{text-align:center;font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--ac);margin-top:12px}
+.sval span{font-size:16px;color:var(--mt)}
+.vgrid{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.vopt{padding:13px 16px;background:var(--s2);border:1px solid var(--bdb);color:var(--mt);border-radius:10px;cursor:pointer;transition:all .15s;font-size:13px;line-height:1.4}
+.vopt:hover{border-color:rgba(184,157,255,0.3);color:var(--tx)}
+.vopt.sel{background:var(--adim);border-color:rgba(184,157,255,0.45);color:var(--ac)}
+.fnav{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.bbk{font-size:12px;color:var(--mt);background:none;border:none;cursor:pointer;transition:color .2s;font-family:'DM Sans',sans-serif}
+.bbk:hover{color:var(--tx)}
+.bnx{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:11px 24px;background:var(--ac);color:#08070f;border:none;border-radius:8px;cursor:pointer;transition:all .2s}
+.bnx:hover{background:var(--ac2);transform:translateY(-1px)}
+.bnx:disabled{opacity:.25;cursor:not-allowed;transform:none}
+/* success */
+.sucw{text-align:center;padding:12px 0;animation:fu .5s ease}
+.suci{width:52px;height:52px;border-radius:50%;background:rgba(184,157,255,0.1);border:1px solid rgba(184,157,255,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:22px}
+.suct{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+.sucm{font-size:14px;color:var(--mt);line-height:1.7;max-width:360px;margin:0 auto 20px}
+.ccard{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;margin-bottom:16px;text-align:left}
+.cclb{font-size:10px;color:var(--mt);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px}
+.cfrow{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.cfrow:last-child{margin-bottom:0}
+.cname{font-size:12px;color:var(--mt);min-width:160px}
+.ctrack{flex:1;height:4px;background:var(--bdb);border-radius:2px;overflow:hidden}
+.cfill{height:100%;background:var(--ac);border-radius:2px;transform:scaleX(0);transform-origin:left;transition:transform 1s .3s ease}
+.cfill.show{transform:scaleX(1)}
+.cpct{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--ac);min-width:28px;text-align:right}
+.ebadge-pop{background:var(--adim);border:1px solid rgba(184,157,255,0.3);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:none;align-items:center;gap:12px;animation:fu .4s ease}
+.ebp-icon{font-size:28px}
+.ebp-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--ac);margin-bottom:2px}
+.ebp-s{font-size:11px;color:var(--mt)}
 
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color .2s;
-}
+/* ── LOGS ── */
+.lsbar2{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:18px 22px;margin-bottom:20px}
+.lst2{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px}
+.lsg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.lsi{text-align:center}
+.lsn{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ac)}
+.lsl{font-size:10px;color:var(--mt);margin-top:2px}
+.lcard{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:18px 22px;margin-bottom:10px;transition:border-color .2s;cursor:pointer}
+.lcard:hover{border-color:var(--bdb)}
+.lhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ldate{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--ac)}
+.lyear{font-size:11px;color:var(--mt)}
+.ltags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.ltag{font-size:11px;padding:3px 9px;background:var(--adim);color:var(--ac);border-radius:100px}
+.lmeta{display:flex;gap:14px}
+.lmi{font-size:11px;color:var(--mt)}
+.lmi span{color:var(--tx);font-weight:500}
+.lempty{text-align:center;padding:56px 0}
+.lei{font-size:34px;margin-bottom:12px;opacity:.4}
+.let2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--mt);margin-bottom:5px}
+.les{font-size:12px;color:var(--mt);opacity:.7}
 
-.stat-card:hover { border-color: var(--border-bright); }
+/* ABOUT */
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.abody p{font-size:14px;color:var(--mt);line-height:1.85;margin-bottom:14px}
+.abody p strong{color:var(--tx);font-weight:500}
+.aquote{border-left:2px solid var(--ac);padding:14px 18px;background:var(--aglow);border-radius:0 10px 10px 0;margin-top:20px}
+.aquote p{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--tx)!important;line-height:1.5;margin:0!important}
+.acards{display:flex;flex-direction:column;gap:10px}
+.acard{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;transition:border-color .2s,transform .2s}
+.acard:hover{border-color:var(--bdb);transform:translateX(4px)}
+.acnum{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--ac);letter-spacing:0.1em;margin-bottom:7px}
+.acard h4{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:5px}
+.acard p{font-size:12px;color:var(--mt);line-height:1.6}
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-}
+/* USERS STRIP */
+.users-strip{max-width:960px;margin:0 auto;padding:0 40px 24px;position:relative;z-index:1}
+.users-strip-inner{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.us-label{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mt);white-space:nowrap}
+.us-avatars{display:flex;align-items:center}
+.us-av{width:30px;height:30px;border-radius:50%;border:2px solid var(--bg);margin-left:-8px;font-size:14px;display:flex;align-items:center;justify-content:center;background:var(--s2);position:relative;transition:transform .2s,opacity .3s;cursor:pointer;flex-shrink:0}
+.us-av:first-child{margin-left:0}
+.us-av:hover{transform:scale(1.2) translateY(-2px);z-index:10}
+.us-av-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--bdb);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--tx);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:20}
+.us-av:hover .us-av-tooltip{opacity:1}
+.us-count{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--ac);margin-left:auto}
+.us-typing{font-size:11px;color:var(--mt);margin-left:4px;display:flex;align-items:center;gap:4px}
+/* COUNTDOWN */
+.countdown-bar{max-width:960px;margin:0 auto;padding:0 40px 24px;position:relative;z-index:1}
+.cd-inner{background:linear-gradient(135deg,var(--s2),var(--s3));border:1px solid rgba(184,157,255,0.18);border-radius:14px;padding:18px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative;overflow:hidden}
+.cd-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:.4}
+.cd-label{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mt);flex-shrink:0}
+.cd-timer{display:flex;align-items:center;gap:8px}
+.cd-unit{text-align:center;min-width:44px}
+.cd-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--ac);line-height:1;transition:all .15s}
+.cd-sub{font-size:9px;color:var(--mt);letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
+.cd-sep{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--bdb);margin-bottom:8px}
+.cd-date{font-size:12px;color:var(--mt);margin-left:auto}
+.cd-inner.urgent .cd-num{color:var(--rd)}
+.cd-inner.urgent{border-color:rgba(248,113,113,0.2)}
 
-.stat-card.green::before { background: linear-gradient(90deg, var(--accent), transparent); }
-.stat-card.amber::before { background: linear-gradient(90deg, var(--accent2), transparent); }
-.stat-card.blue::before { background: linear-gradient(90deg, var(--accent3), transparent); }
-.stat-card.red::before { background: linear-gradient(90deg, var(--danger), transparent); }
-
-.stat-label { font-size: 12px; color: var(--muted); margin-bottom: 12px; letter-spacing: 0.02em; }
-
-.stat-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 36px;
-  font-weight: 800;
-  line-height: 1;
-  margin-bottom: 6px;
-}
-
-.stat-card.green .stat-num { color: var(--accent); }
-.stat-card.amber .stat-num { color: var(--accent2); }
-.stat-card.blue .stat-num { color: var(--accent3); }
-.stat-card.red .stat-num { color: var(--danger); }
-
-.stat-delta {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.stat-delta.up { color: var(--danger); }
-.stat-delta.down { color: var(--accent); }
-
-/* Chart area */
-.chart-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 28px;
-}
-
-.chart-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin-bottom: 4px;
-}
-
-.chart-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 24px;
-}
-
-/* Bar chart */
-.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; }
-
-.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-
-.bar-fill {
-  width: 100%;
-  border-radius: 4px 4px 0 0;
-  background: rgba(74,222,128,0.25);
-  border: 1px solid rgba(74,222,128,0.4);
-  transition: height 1s ease, background .2s;
-  cursor: pointer;
-  position: relative;
-}
-
-.bar-fill:hover { background: rgba(74,222,128,0.4); }
-
-.bar-fill.highlight {
-  background: rgba(74,222,128,0.6);
-  border-color: var(--accent);
-}
-
-.bar-label { font-size: 10px; color: var(--muted); text-align: center; }
-
-/* Donut chart */
-.donut-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.donut-svg { position: relative; }
-
-.donut-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-  width: 100%;
-}
-
-.legend-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-}
-
-.legend-dot {
-  width: 8px; height: 8px;
-  border-radius: 2px;
-  margin-right: 8px;
-  flex-shrink: 0;
-}
-
-.legend-name {
-  color: var(--muted);
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.legend-pct {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  color: var(--text);
-  font-size: 13px;
-}
-
-/* Signal feed */
-.signal-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.signal-feed {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 28px;
-  max-height: 340px;
-  overflow-y: auto;
-}
-
-.signal-feed::-webkit-scrollbar { width: 4px; }
-.signal-feed::-webkit-scrollbar-track { background: transparent; }
-.signal-feed::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
-
-.feed-item {
-  display: flex;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
-  animation: fadeIn 0.4s ease;
-}
-
-.feed-item:last-child { border-bottom: none; }
-
-@keyframes fadeIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
-
-.feed-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-
-.feed-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
-.feed-text strong { color: var(--text); font-weight: 500; }
-
-.feed-time {
-  font-size: 11px;
-  color: rgba(107,114,128,0.6);
-  margin-top: 4px;
-}
-
-/* Friction bars */
-.friction-list { display: flex; flex-direction: column; gap: 16px; }
-
-.friction-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 8px;
-}
-
-.friction-name { font-size: 13px; color: var(--text); }
-
-.friction-pct {
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.friction-track {
-  height: 6px;
-  background: var(--border-bright);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.friction-fill {
-  height: 100%;
-  border-radius: 3px;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 1.2s ease;
-}
-
-.friction-fill.show { transform: scaleX(1); }
-
-/* ── FOOTER ── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 40px 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.footer-logo {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: -0.5px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted);
-}
-
-.footer-note { font-size: 12px; color: var(--muted); }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-.reveal.visible { opacity: 1; transform: none; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 768px) {
-  nav { padding: 16px 24px; }
-  .nav-links { display: none; }
-  #hero, #about-section, #checkin-section, #dashboard-section { padding-left: 24px; padding-right: 24px; }
-  .ticker-grid { grid-template-columns: repeat(2, 1fr); }
-  .about-grid { grid-template-columns: 1fr; gap: 48px; }
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .chart-grid { grid-template-columns: 1fr; }
-  .signal-grid { grid-template-columns: 1fr; }
-  .year-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* Tooltip */
-.tooltip {
-  position: fixed;
-  background: var(--surface2);
-  border: 1px solid var(--border-bright);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--text);
-  pointer-events: none;
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity .15s;
-  white-space: nowrap;
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(max-width:768px){
+  nav{padding:12px 16px}
+  .nlinks .nl:not(.ncta){display:none}
+  .hinner,.pi,.cw,.tw,.qnav{padding-left:16px;padding-right:16px}
+  .tgrid,.sgrid,.leagues-grid,.qnav{grid-template-columns:repeat(2,1fr)}
+  .dbig,.brow,.agrid,.lsg,.nyt-opts{grid-template-columns:1fr}
+  .ygrid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo">
-    <div class="logo-dot"></div>
-    Silent Signal
+  <div class="nlogo" onclick="sp('home')"><img src="logo.png" alt="Silent Signal" style="height:32px;width:auto;object-fit:contain"></div>
+  <div class="nlinks">
+    <button class="nl active" id="nl-home" onclick="sp('home')">Home</button>
+    <button class="nl" id="nl-about" onclick="sp('about')">About</button>
+    <button class="nl" id="nl-dashboard" onclick="sp('dashboard')">Dashboard</button>
+    <button class="nl" id="nl-leagues" onclick="sp('leagues')">Leagues</button>
+    <button class="nl" id="nl-trivia" onclick="sp('trivia')">Trivia</button>
+    <button class="nl" id="nl-logs" onclick="sp('logs')">My Logs</button>
+    <button class="ncta nl" onclick="sp('checkin')">Submit Signal →</button>
   </div>
-  <div class="nav-links">
-    <a href="#" onclick="scrollTo('about-section')">About</a>
-    <a href="#" onclick="scrollTo('dashboard-section')">Dashboard</a>
-    <a href="#" onclick="scrollTo('checkin-section')">Submit Signal</a>
-  </div>
-  <button class="nav-cta" onclick="scrollTo('checkin-section')">Submit Signal →</button>
 </nav>
 
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-grid-bg"></div>
-  <div class="hero-glow"></div>
+<!-- ══ HOME ══ -->
+<div class="page active" id="ph">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="hgrid"></div>
+  <div class="hinner">
+    <div class="eyebrow"><div class="ldot"></div>Anonymous · Collective · AI-Powered</div>
+    <h1 class="htitle">You're not struggling.<br><span class="hl">The system is.</span></h1>
+    <p class="hdesc">Universities promise community and belonging — but the structure makes it nearly impossible. Silent Signal turns your experience into collective evidence, powered by AI.</p>
+    <div class="hbtns">
+      <button class="bp" onclick="sp('checkin')">Submit your signal →</button>
+      <button class="bgs" onclick="sp('dashboard')">View live data</button>
+      <button class="bgs" onclick="sp('trivia')">Play trivia 🎮</button>
+    </div>
 
-  <div class="hero-tag">Anonymous · Collective · Real</div>
-
-  <h1 class="hero-title">
-    You're not struggling.<br>
-    <span class="line2">The system is.</span>
-  </h1>
-
-  <p class="hero-sub">
-    Universities promise community, growth, and belonging — but the structure makes it nearly impossible. Silent Signal turns your experience into collective evidence.
-  </p>
-
-  <div class="hero-actions">
-    <button class="btn-primary" onclick="scrollTo('checkin-section')">Submit your signal →</button>
-    <button class="btn-ghost" onclick="scrollTo('dashboard-section')">View live data</button>
-  </div>
-
-  <div class="hero-ticker">
-    <div class="ticker-label">This week at University of Toronto</div>
-    <div class="ticker-grid">
-      <div class="ticker-item" id="t1">
-        <div class="ticker-pct" id="tp1">0%</div>
-        <div class="ticker-desc">can't participate in clubs due to workload</div>
-      </div>
-      <div class="ticker-item" id="t2">
-        <div class="ticker-pct" id="tp2">0%</div>
-        <div class="ticker-desc">skipped wellbeing to keep up academically</div>
-      </div>
-      <div class="ticker-item" id="t3">
-        <div class="ticker-pct" id="tp3">0%</div>
-        <div class="ticker-desc">felt behind despite trying their best</div>
-      </div>
-      <div class="ticker-item" id="t4">
-        <div class="ticker-pct" id="tp4">0%</div>
-        <div class="ticker-desc">didn't reach out — felt it wouldn't help</div>
-      </div>
+    <!-- MASCOT -->
+    <div class="mascot-zone" id="mascot-zone" onclick="animMascot()">
+      <svg id="mascot-svg" width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- body -->
+        <ellipse cx="45" cy="54" rx="22" ry="18" fill="#17142a" stroke="#b89dff" stroke-width="1.5"/>
+        <!-- head -->
+        <circle cx="45" cy="32" r="16" fill="#1e1a34" stroke="#b89dff" stroke-width="1.5"/>
+        <!-- antenna -->
+        <line x1="45" y1="16" x2="45" y2="8" stroke="#b89dff" stroke-width="1.5" stroke-linecap="round"/>
+        <circle id="antenna-dot" cx="45" cy="6" r="3" fill="#b89dff">
+          <animate attributeName="opacity" values="1;0.3;1" dur="1.8s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="3;4.5;3" dur="1.8s" repeatCount="indefinite"/>
+        </circle>
+        <!-- eyes -->
+        <circle id="eye-l" cx="39" cy="31" r="4" fill="#08070f"/>
+        <circle cx="40" cy="30" r="1.5" fill="#b89dff"/>
+        <circle id="eye-r" cx="51" cy="31" r="4" fill="#08070f"/>
+        <circle cx="52" cy="30" r="1.5" fill="#b89dff"/>
+        <!-- mouth -->
+        <path id="mouth" d="M40 37 Q45 41 50 37" stroke="#b89dff" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <!-- arms -->
+        <line x1="23" y1="50" x2="14" y2="44" stroke="#b89dff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="67" y1="50" x2="76" y2="44" stroke="#b89dff" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- legs -->
+        <line x1="38" y1="70" x2="34" y2="80" stroke="#b89dff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="52" y1="70" x2="56" y2="80" stroke="#b89dff" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- signal waves -->
+        <path id="sw1" d="M58 20 Q65 26 58 32" stroke="#b89dff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.5">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+        </path>
+        <path id="sw2" d="M62 16 Q72 24 62 34" stroke="#b89dff" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.3">
+          <animate attributeName="opacity" values="0.3;0.8;0.3" dur="1.5s" begin="0.3s" repeatCount="indefinite"/>
+        </path>
+        <path id="sw3" d="M32 20 Q25 26 32 32" stroke="#b89dff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.5">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" begin="0.15s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+      <div class="mascot-bubble" id="mascot-bubble">tap me 👆</div>
     </div>
   </div>
-</section>
 
-<!-- ABOUT -->
-<section id="about-section" class="reveal">
-  <div class="section-label">What is this</div>
-  <h2 class="section-title">Not a journal.<br>Not a therapy app.</h2>
+  <!-- QUICK NAV -->
+  <div class="qnav rv">
+    <div class="qcard" onclick="sp('checkin')"><div class="qi">📤</div><div class="qt">Submit Signal</div><div class="qs">90 sec, anonymous</div></div>
+    <div class="qcard" onclick="sp('dashboard')"><div class="qi">📊</div><div class="qt">Dashboard</div><div class="qs">Live patterns</div></div>
+    <div class="qcard" onclick="sp('leagues')"><div class="qi">🏆</div><div class="qt">Leagues</div><div class="qs">Your signal tribe</div></div>
+    <div class="qcard" onclick="sp('trivia')"><div class="qi">🎮</div><div class="qt">Trivia</div><div class="qs">NYT-style quiz</div></div>
+    <div class="qcard" onclick="sp('logs')"><div class="qi">📋</div><div class="qt">My Logs</div><div class="qs">Track over time</div></div>
+  </div>
 
-  <div class="about-grid">
-    <div class="about-text">
-      <p>Universities track grades, retention rates, and graduation numbers. <strong>Nobody tracks the quiet cost of getting there.</strong> The skipped meals, the clubs you couldn't join, the help you didn't ask for because it felt pointless.</p>
-
-      <p>Silent Signal is an anonymous check-in that takes 90 seconds. You're not reflecting on your mindset. You're <strong>reporting a friction point</strong> — something the system put in your way. We aggregate those signals across students and make the pattern visible.</p>
-
-      <p>The insight isn't "what's wrong with you." It's <strong>"you're not the exception — this is the rule."</strong> That distinction matters. It shifts shame into evidence. And evidence can move things.</p>
-
-      <div class="about-callout">
-        <p>"68% of second-year students couldn't attend events they wanted to this semester. That's not a personal failure. That's data."</p>
-      </div>
+  <!-- AI USERS STRIP -->
+  <div class="users-strip rv d1" id="users-strip">
+    <div class="users-strip-inner">
+      <div class="us-label"><div class="ldot"></div>Students submitting right now</div>
+      <div class="us-avatars" id="us-avatars"></div>
+      <div class="us-count" id="us-count">loading...</div>
     </div>
+  </div>
 
-    <div class="about-cards">
-      <div class="about-card">
-        <div class="about-card-icon">🔒</div>
-        <h4>Fully anonymous</h4>
-        <p>No account. No email. No tracking. You submit a signal and it dissolves into the aggregate — indistinguishable from anyone else's.</p>
+  <!-- COUNTDOWN -->
+  <div class="countdown-bar rv d2" id="countdown-bar">
+    <div class="cd-inner">
+      <div class="cd-label">Submission deadline</div>
+      <div class="cd-timer" id="cd-timer">
+        <div class="cd-unit"><div class="cd-num" id="cd-h">--</div><div class="cd-sub">hours</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">--</div><div class="cd-sub">min</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-s">--</div><div class="cd-sub">sec</div></div>
       </div>
-      <div class="about-card">
-        <div class="about-card-icon">📡</div>
-        <h4>Systemic, not personal</h4>
-        <p>We ask about barriers the institution created — not your mental state. No diagnosis, no labels, no clinical framing. Just: what got in your way?</p>
+      <div class="cd-date">Sunday March 15, 2026 · 8:30 AM EDT</div>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="tw rv d3">
+    <div class="tlab-row"><div class="ldot"></div><div class="tlab">This week at University of Toronto</div></div>
+    <div class="tgrid">
+      <div class="tc" id="tc0"><div class="tnum" id="tn0">—</div><div class="tdesc">can't join clubs due to workload</div></div>
+      <div class="tc" id="tc1"><div class="tnum" id="tn1">—</div><div class="tdesc">skipped wellbeing to keep up</div></div>
+      <div class="tc" id="tc2"><div class="tnum" id="tn2">—</div><div class="tdesc">felt behind despite trying</div></div>
+      <div class="tc" id="tc3"><div class="tnum" id="tn3">—</div><div class="tdesc">didn't reach out for help</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ABOUT ══ -->
+<div class="page" id="pa">
+  <div class="pi">
+    <div class="rv"><div class="pey">What this is</div><h2 class="ptitle">Not a journal.<br>Not a therapy app.</h2></div>
+    <div class="agrid">
+      <div class="abody rv d1">
+        <p>Universities track grades and graduation numbers. <strong>Nobody tracks the quiet cost of getting there.</strong></p>
+        <p>Silent Signal is an anonymous check-in that takes 90 seconds. You're not reflecting on your mindset — you're <strong>reporting a friction point</strong>. Something the system put in your way.</p>
+        <p>Our AI reads the aggregate patterns and generates real insights — not generic wellness tips, but <strong>data-backed evidence that the system is failing, not you.</strong></p>
+        <div class="aquote"><p>"68% of second-year students couldn't attend events they wanted to this semester. That's not a personal failure. That's data."</p></div>
       </div>
-      <div class="about-card">
-        <div class="about-card-icon">📊</div>
-        <h4>Collective visibility</h4>
-        <p>Your signal joins hundreds of others. The dashboard shows real patterns — by year, program, and week. Invisible suffering becomes undeniable data.</p>
-      </div>
-      <div class="about-card">
-        <div class="about-card-icon">🎯</div>
-        <h4>Routes to action</h4>
-        <p>Aggregated data goes to student unions and campus newspapers — bodies with actual incentive to act, not the institution being criticized.</p>
+      <div class="acards rv d2">
+        <div class="acard"><div class="acnum">01</div><h4>Fully anonymous</h4><p>No account, no email. Your signal dissolves into the aggregate.</p></div>
+        <div class="acard"><div class="acnum">02</div><h4>AI-powered insights</h4><p>Claude AI analyzes your submission and reframes your struggle in systemic terms — not personal failure language.</p></div>
+        <div class="acard"><div class="acnum">03</div><h4>Collective visibility</h4><p>Patterns by year and week. Invisible suffering becomes undeniable data.</p></div>
+        <div class="acard"><div class="acnum">04</div><h4>Routes to action</h4><p>AI-generated weekly reports go to student unions — not the institution being criticized.</p></div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- CHECK-IN -->
-<section id="checkin-section" class="reveal">
-  <div class="section-label" style="text-align:center; margin-bottom: 12px;">Submit your signal</div>
-  <h2 class="section-title" style="text-align:center; margin-bottom: 48px;">90 seconds.<br>Completely anonymous.</h2>
-
-  <div class="form-card">
-    <div id="form-main">
-      <div class="form-header">
-        <div class="anon-badge">🔒 Anonymous · no account required</div>
-        <div class="form-title">This week at university</div>
-        <div class="form-sub">Select everything that's true. There are no wrong answers.</div>
+<!-- ══ DASHBOARD ══ -->
+<div class="page" id="pdb">
+  <div class="pi">
+    <div class="dtop rv">
+      <div><div class="pey">Live data</div><h2 class="ptitle" style="margin-bottom:0;font-size:clamp(26px,4vw,48px)">The pattern,<br>made visible.</h2></div>
+      <div class="lbadge"><div class="ldot"></div>Live</div>
+    </div>
+    <div class="sgrid rv d1">
+      <div class="sc scp"><div class="sclb">Signals this week</div><div class="scn" id="sc1">—</div><div class="scd" id="sc1d">loading...</div></div>
+      <div class="sc sca"><div class="sclb">Avg workload</div><div class="scn" id="sc2">—</div><div class="scd">hrs/week</div></div>
+      <div class="sc scr"><div class="sclb">Feel invisible</div><div class="scn" id="sc3">—</div><div class="scd">to institution</div></div>
+      <div class="sc scg"><div class="sclb">Skipped self-care</div><div class="scn" id="sc4">—</div><div class="scd">to keep up</div></div>
+    </div>
+    <div class="dbig rv d2">
+      <div class="cc">
+        <div class="cct">Weekly signal volume</div><div class="ccs">Submissions per week</div>
+        <div class="bwrap" id="barchart"></div>
       </div>
-
-      <div class="step-indicator">
-        <div class="step-dot active" id="sd0"></div>
-        <div class="step-dot" id="sd1"></div>
-        <div class="step-dot" id="sd2"></div>
-        <div class="step-dot" id="sd3"></div>
-      </div>
-
-      <!-- Step 0: Year -->
-      <div class="form-step active" id="step0">
-        <div class="question-label">What year are you in?</div>
-        <div class="question-hint">Used only to show you how common your experience is among peers in the same year.</div>
-        <div class="year-grid">
-          <div class="year-btn" onclick="selectYear(1)"><span class="year-num">1</span><span class="year-label">First year</span></div>
-          <div class="year-btn" onclick="selectYear(2)"><span class="year-num">2</span><span class="year-label">Second year</span></div>
-          <div class="year-btn" onclick="selectYear(3)"><span class="year-num">3</span><span class="year-label">Third year</span></div>
-          <div class="year-btn" onclick="selectYear(4)"><span class="year-num">4+</span><span class="year-label">Fourth year+</span></div>
+      <div class="cc">
+        <div class="cct">Who's submitting</div><div class="ccs">Hover a segment to explore · Click to filter</div>
+        <div class="donut-container" id="donut-container">
+          <svg width="200" height="200" id="dsvg" style="transform:rotate(-90deg);overflow:visible"></svg>
+          <div class="donut-center"><div class="dc-num" id="dc-num">—</div><div class="dc-sub" id="dc-sub">signals</div></div>
         </div>
-        <div class="form-nav">
-          <span></span>
-          <button class="btn-next" id="next0" onclick="nextStep(0)" disabled>Continue →</button>
-        </div>
-      </div>
-
-      <!-- Step 1: Barriers -->
-      <div class="form-step" id="step1">
-        <div class="question-label">What got in your way this week?</div>
-        <div class="question-hint">Select all that apply — this is about the system, not you.</div>
-        <div class="chip-grid" id="barriers">
-          <div class="chip" onclick="toggleChip(this)">Couldn't join a club or event I wanted to</div>
-          <div class="chip" onclick="toggleChip(this)">Skipped something for my wellbeing to keep up</div>
-          <div class="chip" onclick="toggleChip(this)">Felt behind despite genuinely trying</div>
-          <div class="chip" onclick="toggleChip(this)">Didn't ask for help — felt it wouldn't matter</div>
-          <div class="chip" onclick="toggleChip(this)">Isolated but couldn't explain why to anyone</div>
-          <div class="chip" onclick="toggleChip(this)">Compared myself to "successful" peers unfairly</div>
-          <div class="chip" onclick="toggleChip(this)">Felt like I was the only one struggling</div>
-          <div class="chip" onclick="toggleChip(this)">Campus resources felt inaccessible or inadequate</div>
-        </div>
-        <div class="form-nav">
-          <button class="btn-back" onclick="prevStep(1)">← Back</button>
-          <button class="btn-next" id="next1" onclick="nextStep(1)" disabled>Continue →</button>
-        </div>
-      </div>
-
-      <!-- Step 2: Workload -->
-      <div class="form-step" id="step2">
-        <div class="question-label">Hours spent on coursework this week?</div>
-        <div class="question-hint">Be honest — this helps us show students they're not outliers.</div>
-        <div class="slider-wrap">
-          <div class="slider-labels"><span>0 hrs</span><span>60+ hrs</span></div>
-          <input type="range" class="custom-slider" id="workload-slider" min="0" max="60" value="30" oninput="updateSlider(this)">
-          <div class="slider-value"><span id="slider-val">30</span><span> hrs</span></div>
-        </div>
-        <div class="form-nav">
-          <button class="btn-back" onclick="prevStep(2)">← Back</button>
-          <button class="btn-next" onclick="nextStep(2)">Continue →</button>
-        </div>
-      </div>
-
-      <!-- Step 3: Visibility -->
-      <div class="form-step" id="step3">
-        <div class="question-label">Did you feel like your struggle was visible to your university?</div>
-        <div class="question-hint">Not whether they acted on it — just whether they could see it.</div>
-        <div class="chip-grid" style="flex-direction: column;">
-          <div class="chip" style="width:100%" onclick="selectVisibility(this, 'invisible')">No — completely invisible. The institution has no idea.</div>
-          <div class="chip" style="width:100%" onclick="selectVisibility(this, 'partial')">Somewhat — I mentioned it but nothing changed.</div>
-          <div class="chip" style="width:100%" onclick="selectVisibility(this, 'visible')">Yes — they acknowledged it, even if they didn't fix it.</div>
-        </div>
-        <div class="form-nav">
-          <button class="btn-back" onclick="prevStep(3)">← Back</button>
-          <button class="btn-next" id="next3" onclick="submitSignal()" disabled>Submit signal →</button>
-        </div>
+        <div class="dleg" id="dleg"></div>
       </div>
     </div>
-
-    <!-- Success -->
-    <div id="form-success" style="display:none">
-      <div class="success-state">
-        <div class="success-icon">✓</div>
-        <div class="success-title">Signal received.</div>
-        <p class="success-msg">Your experience just joined hundreds of others. Together, these patterns become impossible to ignore.</p>
-
-        <div class="signal-contribution" id="contribution-display">
-          <div style="font-size:12px; color: var(--muted); margin-bottom:14px; letter-spacing:0.05em; text-transform:uppercase;">Your signal shifts the data</div>
-          <div class="contribution-row">
-            <div class="contribution-label">Can't join clubs due to workload</div>
-            <div class="contribution-bar-wrap"><div class="contribution-bar" id="cb1" style="width:79%"></div></div>
-            <div class="contribution-pct">79%</div>
-          </div>
-          <div class="contribution-row">
-            <div class="contribution-label">Skipped wellbeing for coursework</div>
-            <div class="contribution-bar-wrap"><div class="contribution-bar" id="cb2" style="width:84%"></div></div>
-            <div class="contribution-pct">84%</div>
-          </div>
-          <div class="contribution-row">
-            <div class="contribution-label">Felt invisible to the institution</div>
-            <div class="contribution-bar-wrap"><div class="contribution-bar" id="cb3" style="width:91%"></div></div>
-            <div class="contribution-pct">91%</div>
+    <div class="brow rv d3">
+      <div class="cc">
+        <div class="cct">Top friction points</div><div class="ccs">% reporting each barrier</div>
+        <div class="flist" id="flist"></div>
+      </div>
+      <div class="cc" style="padding:0;overflow:hidden">
+        <div style="padding:22px 22px 10px"><div class="cct">Live signal feed</div><div class="ccs">Arriving now</div></div>
+        <div class="feedwrap" id="sfeed"></div>
+      </div>
+    </div>
+    <!-- AI INTERACTIVE CHAT -->
+    <div class="ai-chat-card rv d4">
+      <div class="ai-chat-header">
+        <div class="ai-chat-title-row">
+          <div class="ai-chat-avatar">✦</div>
+          <div>
+            <div class="ai-chat-name">Signal AI</div>
+            <div class="ai-chat-status">online · analyzing this week's data</div>
           </div>
         </div>
-
-        <button class="btn-primary" onclick="scrollTo('dashboard-section')">See the full picture →</button>
+        <div style="display:flex;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--rd);opacity:.6"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--am);opacity:.6"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--gn);opacity:.6"></div>
+        </div>
+      </div>
+      <div class="ai-chat-msgs" id="ai-msgs">
+        <div class="msg ai">
+          <div class="msg-avatar">✦</div>
+          <div class="msg-bubble">Hey — I've been analyzing this week's 847 signals. The patterns are pretty striking. Ask me anything about what students are experiencing, or I can generate a full report. What do you want to know?</div>
+        </div>
+      </div>
+      <div class="ai-quick-prompts" id="ai-prompts">
+        <div class="qprompt" onclick="sendPromptQ(this)">What's the biggest systemic issue?</div>
+        <div class="qprompt" onclick="sendPromptQ(this)">Why aren't students asking for help?</div>
+        <div class="qprompt" onclick="sendPromptQ(this)">Generate the weekly report</div>
+        <div class="qprompt" onclick="sendPromptQ(this)">What should student unions do?</div>
+        <div class="qprompt" onclick="sendPromptQ(this)">Compare years of study</div>
+      </div>
+      <div class="ai-chat-input-row">
+        <input class="ai-chat-input" id="ai-input" placeholder="Ask Signal AI about the data..." onkeydown="if(event.key==='Enter')sendAIChat()">
+        <button class="ai-send" onclick="sendAIChat()">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8L2 2l2 6-2 6 12-6z" fill="#08070f"/></svg>
+        </button>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- DASHBOARD -->
-<section id="dashboard-section" class="reveal">
-  <div class="dash-header">
-    <div>
-      <div class="section-label">Live data</div>
-      <h2 class="section-title" style="margin-bottom:0">The pattern,<br>made visible.</h2>
-    </div>
-    <div class="live-badge">Live · Updates every hour</div>
-  </div>
-
-  <!-- Stat cards -->
-  <div class="stat-grid">
-    <div class="stat-card green">
-      <div class="stat-label">Signals this week</div>
-      <div class="stat-num" id="sn1">847</div>
-      <div class="stat-delta up">↑ 12% from last week</div>
-    </div>
-    <div class="stat-card amber">
-      <div class="stat-label">Avg workload hours</div>
-      <div class="stat-num" id="sn2">38h</div>
-      <div class="stat-delta up">↑ 4h above reported capacity</div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-label">Report feeling invisible</div>
-      <div class="stat-num" id="sn3">91%</div>
-      <div class="stat-delta">consistent 6 weeks running</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-label">Skipped self-care</div>
-      <div class="stat-num" id="sn4">84%</div>
-      <div class="stat-delta up">↑ 8% during midterms</div>
+<!-- ══ LEAGUES ══ -->
+<div class="page" id="plg">
+  <div class="pi">
+    <div class="rv"><div class="pey">Signal Leagues</div><h2 class="ptitle">Find your<br>signal tribe.</h2></div>
+    <p class="rv d1" style="font-size:14px;color:var(--mt);line-height:1.7;max-width:580px;margin-bottom:36px">Leagues group students by their most common signal pattern. Submit signals to discover which league you belong to.</p>
+    <div class="leagues-grid rv d1" id="leagues-grid"></div>
+    <div class="rv d2">
+      <div class="pey" style="margin-top:4px">Your badges</div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px;letter-spacing:-0.02em">Earned through signals</h3>
+      <div class="badge-row" id="badge-row"></div>
     </div>
   </div>
+</div>
 
-  <!-- Charts row -->
-  <div class="chart-grid">
-    <div class="chart-card">
-      <div class="chart-title">Weekly signal volume</div>
-      <div class="chart-sub">Total anonymous submissions per week this semester</div>
-      <div class="bar-chart" id="bar-chart"></div>
-      <div style="display:flex; justify-content:space-between; margin-top:8px;">
-        <span style="font-size:10px;color:var(--muted)">Week 1</span>
-        <span style="font-size:10px;color:var(--muted)">Week 8</span>
-        <span style="font-size:10px;color:var(--muted)">Now</span>
+<!-- ══ TRIVIA ══ -->
+<div class="page" id="ptr">
+  <div class="pi" style="max-width:700px">
+    <div class="rv"><div class="pey">Signal Trivia</div><h2 class="ptitle">How much do<br>you actually know?</h2></div>
+    <div id="trivia-wrap" class="nyt-wrap rv d1"></div>
+  </div>
+</div>
+
+<!-- ══ CHECKIN ══ -->
+<div class="page" id="pci">
+  <div class="cw">
+    <div class="rv" style="text-align:center;margin-bottom:32px">
+      <div class="pey" style="text-align:center">Submit your signal</div>
+      <h2 class="ptitle" style="font-size:clamp(26px,4vw,44px);text-align:center;margin-bottom:0">90 seconds.<br>Completely anonymous.</h2>
+    </div>
+    <div class="fcard rv d1">
+      <div id="fbody">
+        <div class="apill">🔒 No account required</div>
+        <div class="ftitle">This week at university</div>
+        <div class="fsub">Select options or type your own. No wrong answers.</div>
+        <div class="sdots"><div class="sd active" id="sd0"></div><div class="sd" id="sd1"></div><div class="sd" id="sd2"></div><div class="sd" id="sd3"></div></div>
+        <!-- step 0 -->
+        <div class="fstep active" id="fs0">
+          <div class="ql">What year are you in?</div>
+          <div class="qh">Used only to compare with peers in the same year.</div>
+          <div class="ygrid">
+            <div class="yb" onclick="sy(1,this)"><span class="yn">1</span><span class="yl">First</span></div>
+            <div class="yb" onclick="sy(2,this)"><span class="yn">2</span><span class="yl">Second</span></div>
+            <div class="yb" onclick="sy(3,this)"><span class="yn">3</span><span class="yl">Third</span></div>
+            <div class="yb" onclick="sy(4,this)"><span class="yn">4+</span><span class="yl">Fourth+</span></div>
+          </div>
+          <div class="fnav"><span></span><button class="bnx" id="fn0" onclick="gs(0,1)" disabled>Continue →</button></div>
+        </div>
+        <!-- step 1 -->
+        <div class="fstep" id="fs1">
+          <div class="ql">What got in your way this week?</div>
+          <div class="qh">Pick from below, or type your own and hit + Add.</div>
+          <div class="cgrid" id="bchips">
+            <div class="chip" onclick="tc2(this)">Couldn't join a club or event</div>
+            <div class="chip" onclick="tc2(this)">Skipped wellbeing to keep up</div>
+            <div class="chip" onclick="tc2(this)">Felt behind despite trying</div>
+            <div class="chip" onclick="tc2(this)">Didn't ask for help</div>
+            <div class="chip" onclick="tc2(this)">Felt isolated, no words for it</div>
+            <div class="chip" onclick="tc2(this)">Compared myself unfairly</div>
+            <div class="chip" onclick="tc2(this)">Felt like the only one struggling</div>
+            <div class="chip" onclick="tc2(this)">Resources felt inaccessible</div>
+          </div>
+          <div class="custom-row">
+            <input class="custom-input" id="custom-barrier" type="text" placeholder="Describe your own barrier..." onkeydown="if(event.key==='Enter')addCustom()">
+            <button class="custom-add-btn" onclick="addCustom()">+ Add</button>
+          </div>
+          <div class="fnav"><button class="bbk" onclick="gs(1,0)">← Back</button><button class="bnx" id="fn1" onclick="gs(1,2)" disabled>Continue →</button></div>
+        </div>
+        <!-- step 2 -->
+        <div class="fstep" id="fs2">
+          <div class="ql">Hours on coursework this week?</div>
+          <div class="qh">Be honest — this helps show students they're not outliers.</div>
+          <div class="slw">
+            <div class="slabs"><span>0 hrs</span><span>60+ hrs</span></div>
+            <input type="range" min="0" max="60" value="30" id="wls" oninput="us(this)">
+            <div class="sval"><span id="wlv">30</span><span> hrs</span></div>
+          </div>
+          <div class="fnav"><button class="bbk" onclick="gs(2,1)">← Back</button><button class="bnx" onclick="gs(2,3)">Continue →</button></div>
+        </div>
+        <!-- step 3 -->
+        <div class="fstep" id="fs3">
+          <div class="ql">Did your university see your struggle?</div>
+          <div class="qh">Not whether they acted — just whether they could see it.</div>
+          <div class="vgrid">
+            <div class="vopt" onclick="sv(this,'invisible')">No — completely invisible.</div>
+            <div class="vopt" onclick="sv(this,'partial')">Somewhat — mentioned it, nothing changed.</div>
+            <div class="vopt" onclick="sv(this,'visible')">Yes — acknowledged, even if not fixed.</div>
+          </div>
+          <div class="fnav"><button class="bbk" onclick="gs(3,2)">← Back</button><button class="bnx" id="fn3" onclick="dsub()" disabled>Submit signal →</button></div>
+        </div>
+      </div>
+      <!-- success -->
+      <div id="fsuc" style="display:none">
+        <div class="sucw">
+          <div class="suci">✓</div>
+          <div class="suct">Signal received.</div>
+          <p class="sucm">Your experience just joined hundreds of others. Together, these patterns become impossible to ignore.</p>
+          <div class="ebadge-pop" id="ebadge"></div>
+          <div class="ccard">
+            <div class="cclb">Your signal shifts the data</div>
+            <div class="cfrow"><div class="cname">Can't join clubs</div><div class="ctrack"><div class="cfill" id="cf1" style="width:79%"></div></div><div class="cpct">79%</div></div>
+            <div class="cfrow"><div class="cname">Skipped wellbeing</div><div class="ctrack"><div class="cfill" id="cf2" style="width:84%"></div></div><div class="cpct">84%</div></div>
+            <div class="cfrow"><div class="cname">Felt invisible</div><div class="ctrack"><div class="cfill" id="cf3" style="width:91%"></div></div><div class="cpct">91%</div></div>
+          </div>
+          <!-- AI INSIGHT -->
+          <div class="ai-panel" id="ai-insight-panel">
+            <div class="ai-tag"><span>✦</span> AI Insight</div>
+            <div class="ai-content" id="ai-insight-text">
+              <div class="ai-loading"><div class="ai-dots"><span></span><span></span><span></span></div>Analyzing your signal...</div>
+            </div>
+            <div class="ai-reframe" id="ai-reframe">
+              <div class="ai-reframe-label">Reframed in systemic terms</div>
+              <div id="ai-reframe-text"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            <button class="bp" onclick="sp('dashboard')">See full picture →</button>
+            <button class="bgs" onclick="sp('leagues')">View leagues</button>
+            <button class="bgs" onclick="sp('logs')">My logs</button>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="chart-card">
-      <div class="chart-title">Who's submitting</div>
-      <div class="chart-sub">By year of study</div>
-      <div class="donut-wrap">
-        <svg width="140" height="140" viewBox="0 0 140 140" id="donut-svg"></svg>
-        <div class="donut-legend" id="donut-legend"></div>
+<!-- ══ LOGS ══ -->
+<div class="page" id="plog">
+  <div class="pi" style="max-width:860px">
+    <div class="rv"><div class="pey">My logs</div><h2 class="ptitle" style="font-size:clamp(26px,4vw,48px)">Your signals,<br>over time.</h2></div>
+    <div id="lsbar" style="display:none" class="rv d1">
+      <div class="lsbar2"><div class="lst2">Your pattern this semester</div>
+        <div class="lsg">
+          <div class="lsi"><div class="lsn" id="lsc">0</div><div class="lsl">signals submitted</div></div>
+          <div class="lsi"><div class="lsn" id="lsw">0h</div><div class="lsl">avg workload</div></div>
+          <div class="lsi"><div class="lsn" id="lst">—</div><div class="lsl">top barrier</div></div>
+        </div>
       </div>
     </div>
+    <div id="llist" class="rv d2"></div>
+    <div id="lempty" class="lempty rv d1"><div class="lei">📡</div><div class="let2">No signals yet</div><div class="les">Submit your first signal and it'll appear here.</div><button class="bp" style="margin-top:18px" onclick="sp('checkin')">Submit a signal →</button></div>
   </div>
-
-  <!-- Signal feed + friction -->
-  <div class="signal-grid">
-    <div class="chart-card">
-      <div class="chart-title">Top friction points</div>
-      <div class="chart-sub">% of students reporting each barrier this week</div>
-      <div class="friction-list" id="friction-list"></div>
-    </div>
-
-    <div class="chart-card" style="padding:0; overflow:hidden;">
-      <div style="padding:28px 28px 16px;">
-        <div class="chart-title">Live signal feed</div>
-        <div class="chart-sub">Anonymous submissions as they arrive</div>
-      </div>
-      <div class="signal-feed" id="signal-feed"></div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">
-    <div class="logo-dot" style="width:6px;height:6px"></div>
-    Silent Signal
-  </div>
-  <div class="footer-note">Anonymous by design. Not a clinical tool. <a href="#" style="color:var(--accent3)">Crisis resources ↗</a></div>
-</footer>
-
-<div class="tooltip" id="tooltip"></div>
+</div>
 
 <script>
-const API = 'http://localhost:8000';
-// ── STATE ──
-const state = { year: null, barriers: [], workload: 30, visibility: null, step: 0 };
+const API='http://localhost:8000', SK='ss_logs';
+const fs={year:null,barriers:[],workload:30,visibility:null};
+const pages={home:'ph',about:'pa',dashboard:'pdb',leagues:'plg',trivia:'ptr',checkin:'pci',logs:'plog'};
+let dashBuilt=false;
 
-// ── NAV ──
-function scrollTo(id) {
-  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ── ROUTING ──
+function sp(id){
+  Object.values(pages).forEach(p=>document.getElementById(p).classList.remove('active'));
+  document.querySelectorAll('.nl').forEach(l=>l.classList.remove('active'));
+  document.getElementById(pages[id]).classList.add('active');
+  const nl=document.getElementById('nl-'+id);if(nl)nl.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='dashboard')initDash();
+  if(id==='logs')renderLogs();
+  if(id==='leagues')renderLeagues();
+  if(id==='trivia')initTrivia();
+  setTimeout(ir,60);
+}
+function ir(){
+  const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:0.08});
+  document.querySelectorAll('.rv:not(.visible)').forEach(el=>obs.observe(el));
+}
+ir();
+
+// ── MASCOT ──
+const bubbles=['beep boop 📡','your signal matters ✦','you\'re not alone 🌌','the data speaks 📊','transmitting... 📡','keep going 💜','i see you 👀','together we\'re louder 🔊','anonymous & safe 🔒'];
+const anims=['do-jump','do-spin','do-wiggle','do-bounce'];
+let mbIdx=0;
+function animMascot(){
+  const svg=document.getElementById('mascot-svg');
+  const bubble=document.getElementById('mascot-bubble');
+  const anim=anims[Math.floor(Math.random()*anims.length)];
+  svg.classList.remove(...anims);
+  void svg.offsetWidth;
+  svg.classList.add(anim);
+  bubble.style.opacity='0';
+  setTimeout(()=>{bubble.textContent=bubbles[mbIdx%bubbles.length];bubble.style.opacity='1';mbIdx++;},150);
+  setTimeout(()=>svg.classList.remove(anim),700);
 }
 
-// ── TICKER ANIMATION ──
-function animCount(el, target, suffix = '%', duration = 1800) {
-  let start = 0, startTime = null;
-  function step(ts) {
-    if (!startTime) startTime = ts;
-    const p = Math.min((ts - startTime) / duration, 1);
-    const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(ease * target) + suffix;
-    if (p < 1) requestAnimationFrame(step);
-  }
+// ── TICKER ──
+function animN(el,target,sfx='%',_unused,dur=1500){
+  if(typeof el==='string'){el=document.getElementById(el)}
+  if(!el)return;
+  let s=null;
+  const step=ts=>{if(!s)s=ts;const p=Math.min((ts-s)/dur,1),e=1-Math.pow(1-p,3);el.textContent=Math.round(e*target)+sfx;if(p<1)requestAnimationFrame(step)};
   requestAnimationFrame(step);
 }
-
-setTimeout(() => {
-  animCount(document.getElementById('tp1'), 79);
-  animCount(document.getElementById('tp2'), 84);
-  animCount(document.getElementById('tp3'), 73);
-  animCount(document.getElementById('tp4'), 67);
-  ['t1','t2','t3','t4'].forEach(id => {
-    setTimeout(() => document.getElementById(id).classList.add('loaded'), 200);
-  });
-}, 600);
+function updTicker(d){
+  if(!d||!d.ticker)return;
+  animN(document.getElementById('tn0'),d.ticker.cant_join||0);
+  animN(document.getElementById('tn1'),d.ticker.skipped_wb||0);
+  animN(document.getElementById('tn2'),d.ticker.felt_behind||0);
+  animN(document.getElementById('tn3'),d.ticker.didnt_reach||0);
+  ['tc0','tc1','tc2','tc3'].forEach(id=>document.getElementById(id).classList.add('loaded'));
+}
+async function loadTicker(){
+  try{const r=await fetch(API+'/stats');if(r.ok){const d=await r.json();updTicker(d);return}}catch(e){}
+  setTimeout(()=>{animN(document.getElementById('tn0'),79);animN(document.getElementById('tn1'),84);animN(document.getElementById('tn2'),73);animN(document.getElementById('tn3'),67);['tc0','tc1','tc2','tc3'].forEach(id=>document.getElementById(id).classList.add('loaded'))},500);
+}
+loadTicker();
 
 // ── FORM ──
-function selectYear(y, el) {
-  state.year = y;
-  document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('next0').disabled = false;
+function sy(y,el){fs.year=String(y);document.querySelectorAll('.yb').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('fn0').disabled=false}
+function tc2(el){el.classList.toggle('sel');document.getElementById('fn1').disabled=document.querySelectorAll('#bchips .chip.sel').length===0}
+function addCustom(){
+  const inp=document.getElementById('custom-barrier');
+  const val=inp.value.trim();
+  if(!val)return;
+  const chip=document.createElement('div');
+  chip.className='chip sel';
+  chip.onclick=function(){tc2(this)};
+  chip.textContent=val;
+  document.getElementById('bchips').appendChild(chip);
+  inp.value='';
+  document.getElementById('fn1').disabled=false;
+}
+function us(el){fs.workload=parseInt(el.value);document.getElementById('wlv').textContent=el.value}
+function sv(el,v){fs.visibility=v;document.querySelectorAll('.vopt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');document.getElementById('fn3').disabled=false}
+function gs(from,to){
+  document.getElementById('fs'+from).classList.remove('active');
+  document.getElementById('fs'+to).classList.add('active');
+  for(let i=0;i<4;i++){const d=document.getElementById('sd'+i);d.classList.remove('active','done');if(i<to)d.classList.add('done');else if(i===to)d.classList.add('active')}
 }
 
-function toggleChip(el) {
-  el.classList.toggle('selected');
-  const any = document.querySelectorAll('#barriers .chip.selected').length > 0;
-  document.getElementById('next1').disabled = !any;
+async function dsub(){
+  fs.barriers=[...document.querySelectorAll('#bchips .chip.sel')].map(c=>c.textContent.trim());
+  const logs=JSON.parse(localStorage.getItem(SK)||'[]');
+  logs.unshift({...fs,date:new Date().toISOString()});
+  localStorage.setItem(SK,JSON.stringify(logs));
+  try{const r=await fetch(API+'/signals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fs)});if(r.ok){const d=await r.json();updTicker(d)}}catch(e){}
+  const badge=checkBadge(logs.length,fs.barriers);
+  if(badge){const ep=document.getElementById('ebadge');ep.style.display='flex';ep.innerHTML=`<div class="ebp-icon">${badge.icon}</div><div><div class="ebp-t">${badge.name}</div><div class="ebp-s">${badge.desc}</div></div>`}
+  document.getElementById('fbody').style.display='none';
+  document.getElementById('fsuc').style.display='block';
+  setTimeout(()=>document.querySelectorAll('.cfill').forEach(f=>f.classList.add('show')),300);
+  getAIInsight(fs.barriers,fs.workload,fs.visibility);
 }
 
-function updateSlider(el) {
-  document.getElementById('slider-val').textContent = el.value;
-  state.workload = parseInt(el.value);
+function checkBadge(count,barriers){
+  if(count===1)return{icon:'📡',name:'First Signal',desc:'You sent your first signal into the void.'};
+  if(count===3)return{icon:'🔁',name:'Consistent Voice',desc:'3 signals submitted — your pattern is building.'};
+  if(count===5)return{icon:'🌊',name:'Signal Wave',desc:'5 signals — you\'re part of the current.'};
+  if(barriers.some(b=>b.toLowerCase().includes('isolated')))return{icon:'🌌',name:'Quiet Struggles',desc:'You named what others can\'t say.'};
+  if(count>=10)return{icon:'🏆',name:'Signal Champion',desc:'10+ signals. You are the movement.'};
+  return null;
 }
 
-function selectVisibility(el, val) {
-  state.visibility = val;
-  document.querySelectorAll('#step3 .chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('next3').disabled = false;
-}
+// ── AI INSIGHT ──
+async function getAIInsight(barriers,workload,visibility){
+  const insightEl=document.getElementById('ai-insight-text');
+  const reframeEl=document.getElementById('ai-reframe');
+  const reframeText=document.getElementById('ai-reframe-text');
+  try{
+    const prompt=`A university student anonymously submitted the following weekly signal:
+Barriers experienced: ${barriers.join(', ')}
+Workload this week: ${workload} hours
+Felt visible to institution: ${visibility}
 
-function updateStepDots(current) {
-  for (let i = 0; i < 4; i++) {
-    const d = document.getElementById('sd' + i);
-    d.classList.remove('active', 'done');
-    if (i < current) d.classList.add('done');
-    else if (i === current) d.classList.add('active');
-  }
-}
+In 2-3 sentences, provide a compassionate, data-informed insight that:
+1. Validates their experience as systemic, not personal
+2. References that these patterns are common among students
+3. Ends with one empowering statement
 
-function nextStep(from) {
-  document.getElementById('step' + from).classList.remove('active');
-  document.getElementById('step' + (from + 1)).classList.add('active');
-  updateStepDots(from + 1);
-}
+Then on a new line starting with "REFRAME:", rewrite their experience using systemic language instead of personal failure language. Keep it under 2 sentences.
 
-function prevStep(from) {
-  document.getElementById('step' + from).classList.remove('active');
-  document.getElementById('step' + (from - 1)).classList.add('active');
-  updateStepDots(from - 1);
-}
-
-function submitSignal() {
-  document.getElementById('form-main').style.display = 'none';
-  document.getElementById('form-success').style.display = 'block';
-  setTimeout(() => {
-    document.querySelectorAll('.contribution-bar').forEach(b => b.classList.add('show'));
-  }, 300);
-}
-
-// ── SUBMIT TO REAL BACKEND ────────────────────────────────────────────────
-async function submitSignal() {
-  const barriers = [...document.querySelectorAll('#barriers .chip.selected')]
-    .map(c => c.textContent.trim());
-
-  const payload = {
-    year:       String(state.year),
-    barriers:   barriers,
-    workload:   state.workload,
-    visibility: state.visibility,
-  };
-
-  try {
-    const res  = await fetch(`${API}/signals`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
+Be warm but factual. Do not use clinical language or suggest therapy.`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
     });
-    const data = await res.json();
-    updateDashboard(data);
-
-    // Update contribution bars with real numbers
-    if (data.ticker) {
-      document.getElementById('cpct1').textContent = data.ticker.cant_join + '%';
-      document.getElementById('cb1').style.width   = data.ticker.cant_join + '%';
-      document.getElementById('cpct2').textContent = data.ticker.skipped_wb + '%';
-      document.getElementById('cb2').style.width   = data.ticker.skipped_wb + '%';
-      document.getElementById('cpct3').textContent = data.stat_cards.pct_invisible + '%';
-      document.getElementById('cb3').style.width   = data.stat_cards.pct_invisible + '%';
-    }
-  } catch (e) {
-    console.warn('Backend offline — showing local success state', e);
+    const data=await res.json();
+    const text=data.content[0].text;
+    const parts=text.split('REFRAME:');
+    insightEl.textContent=parts[0].trim();
+    if(parts[1]){reframeText.textContent=parts[1].trim();reframeEl.style.display='block'}
+  }catch(e){
+    insightEl.textContent='What you described — feeling overloaded, invisible, and behind despite trying — is one of the most common patterns we see. This is the system working exactly as it was designed, not a reflection of your effort or worth.';
   }
-
-  document.getElementById('form-main').style.display  = 'none';
-  document.getElementById('form-success').style.display = 'block';
-  setTimeout(() => {
-    document.querySelectorAll('.contribution-bar').forEach(b => b.classList.add('show'));
-  }, 300);
 }
 
-// ── UPDATE DASHBOARD WITH API DATA ────────────────────────────────────────
-function updateDashboard(data) {
-  if (!data) return;
+// ── AI CHAT ──
+const SYSTEM_PROMPT=`You are Signal AI, an intelligent assistant embedded in the Silent Signal platform — an anonymous student experience tracker at University of Toronto. You have access to this week's aggregate data:
+- 847 students submitted signals this week
+- 91% felt invisible to their institution
+- 84% skipped self-care to keep up academically  
+- 79% couldn't join clubs/events due to workload
+- 73% felt behind despite trying their best
+- 67% didn't reach out for help
+- Average workload: 38 hours/week outside class
+- Year breakdown: 31% first year, 28% second year, 24% third year, 17% fourth year+
 
-  // Stat cards
-  if (data.stat_cards) {
-    document.getElementById('sn1').textContent = data.stat_cards.total_signals;
-    document.getElementById('sn2').textContent = data.stat_cards.avg_workload + 'h';
-    document.getElementById('sn3').textContent = data.stat_cards.pct_invisible + '%';
-    document.getElementById('sn4').textContent = data.stat_cards.pct_skipped + '%';
-  }
+You speak directly to students, faculty, or student union members who are looking at this dashboard. Be smart, warm, data-driven, and direct. Keep responses under 100 words — conversational and punchy. No bullet lists unless explicitly asked. Never suggest therapy or clinical help. Frame everything systemically, not personally.`;
 
-  // Ticker
-  if (data.ticker) {
-    animCount(document.getElementById('tp1'), data.ticker.cant_join);
-    animCount(document.getElementById('tp2'), data.ticker.skipped_wb);
-    animCount(document.getElementById('tp3'), data.ticker.felt_behind);
-    animCount(document.getElementById('tp4'), data.ticker.didnt_reach);
-    ['t1','t2','t3','t4'].forEach(id => {
-      setTimeout(() => document.getElementById(id).classList.add('loaded'), 200);
+const chatHistory=[];
+
+async function sendAIChat(){
+  const input=document.getElementById('ai-input');
+  const msg=input.value.trim();
+  if(!msg)return;
+  input.value='';
+  addMsg('user',msg,'👤');
+  chatHistory.push({role:'user',content:msg});
+  document.getElementById('ai-prompts').style.display='none';
+  await getAIResponse();
+}
+
+function sendPromptQ(el){
+  document.getElementById('ai-input').value=el.textContent;
+  sendAIChat();
+}
+
+function addMsg(type,text,avatar){
+  const msgs=document.getElementById('ai-msgs');
+  const div=document.createElement('div');
+  div.className='msg '+type;
+  div.innerHTML=`<div class="msg-avatar">${avatar}</div><div class="msg-bubble">${text}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addTyping(){
+  const msgs=document.getElementById('ai-msgs');
+  const div=document.createElement('div');
+  div.className='msg ai';div.id='typing-indicator';
+  div.innerHTML=`<div class="msg-avatar">✦</div><div class="msg-typing"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+async function getAIResponse(){
+  const typing=addTyping();
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:SYSTEM_PROMPT,
+        messages:chatHistory
+      })
     });
+    const data=await res.json();
+    const reply=data.content[0].text;
+    chatHistory.push({role:'assistant',content:reply});
+    typing.remove();
+    addMsg('ai',reply,'✦');
+  }catch(e){
+    typing.remove();
+    const fallbacks={
+      'biggest systemic issue':'The core issue is structural overload — 38 hours of coursework per week leaves no room for anything else universities claim to offer. It\'s not a student motivation problem. The architecture is broken.',
+      'asking for help':'67% didn\'t reach out. The data suggests they\'ve learned that asking doesn\'t change anything — 91% feel invisible to their institution. Why ask when nothing moves?',
+      'weekly report':'This week: 847 signals. 91% invisible, 84% skipped self-care, 79% locked out of campus life by workload. The system is producing exactly the outcome its design would predict. Students aren\'t failing — the structure is.',
+      'student unions':'Student unions should present this data as a formal workload audit request. 847 data points, 6 weeks of consistent patterns. That\'s not anecdote — that\'s evidence.',
+      'compare years':'Second years are showing the highest signal volume. First years are just starting to feel it. By third year, students have learned to go quiet. Fourth years have adapted — or left.',
+    };
+    const lastMsg=chatHistory[chatHistory.length-1]?.content?.toLowerCase()||'';
+    const fallback=Object.entries(fallbacks).find(([k])=>lastMsg.includes(k));
+    addMsg('ai',fallback?fallback[1]:'The data this week is consistent with every week: the system is structurally incompatible with the experience it promises. Students aren\'t failing to thrive — they\'re succeeding at surviving an impossible load.','✦');
   }
+}
 
-  // Bar chart — rebuild if data changed
-  if (data.bar_chart) {
-    const container = document.getElementById('bar-chart');
-    container.innerHTML = '';
-    buildBarChart(data.bar_chart);
-  }
-
-  // Donut — rebuild
-  if (data.donut) {
-    document.getElementById('donut-svg').innerHTML   = '';
-    document.getElementById('donut-legend').innerHTML = '';
-    buildDonut(data.donut, data.stat_cards ? data.stat_cards.total_signals : 0);
-  }
-
-  // Friction bars — rebuild
-  if (data.friction) {
-    document.getElementById('friction-list').innerHTML = '';
-    buildFriction(data.friction);
-  }
-
-  // Feed — prepend new items
-  if (data.feed && data.feed.length) {
-    const feed = document.getElementById('signal-feed');
-    feed.innerHTML = '';
-    data.feed.forEach(m => {
-      const item = document.createElement('div');
-      item.className = 'feed-item';
-      item.innerHTML = `
-        <div class="feed-dot" style="background:${m.color}"></div>
-        <div>
-          <div class="feed-text">${m.text}</div>
-          <div class="feed-time">${m.time}</div>
-        </div>`;
-      feed.appendChild(item);
+// ── DASHBOARD ──
+function getDemoData(){
+  return{total:847,stat_cards:{total_signals:847,avg_workload:38,pct_invisible:91,pct_skipped:84},
+  bar_chart:[312,445,398,521,610,578,689,724,791,812,847],
+  donut:[{label:'First year',pct:31,color:'#b89dff'},{label:'Second year',pct:28,color:'#93c5fd'},{label:'Third year',pct:24,color:'#fbbf24'},{label:'Fourth year+',pct:17,color:'#f87171'}],
+  friction:[{name:'Felt invisible',pct:91,color:'#b89dff'},{name:'Skipped wellbeing',pct:84,color:'#f87171'},{name:"Can't join clubs",pct:79,color:'#93c5fd'},{name:'Felt behind',pct:73,color:'#6ee7b7'},{name:"Didn't reach out",pct:67,color:'#a78bfa'},{name:'Isolated',pct:61,color:'#f9a8d4'}],
+  feed:[{text:'<strong>2nd year Engineering</strong> — couldn\'t attend wellness event',color:'#fbbf24',time:'2 min ago'},{text:'<strong>3rd year CS</strong> — skipped two club meetings',color:'#93c5fd',time:'5 min ago'},{text:'<strong>1st year Commerce</strong> — afraid to ask for help',color:'#6ee7b7',time:'9 min ago'},{text:'<strong>4th year Life Sci</strong> — institution knows, nothing changed',color:'#f87171',time:'11 min ago'},{text:'<strong>2nd year Arts</strong> — felt inadequate comparing myself',color:'#b89dff',time:'14 min ago'}]}
+}
+async function initDash(){
+  let data=null;
+  try{const r=await fetch(API+'/stats');if(r.ok)data=await r.json()}catch(e){}
+  if(!data||data.total===0)data=getDemoData();
+  buildDash(data);
+  if(!dashBuilt){dashBuilt=true;setInterval(async()=>{try{const r=await fetch(API+'/stats');if(r.ok){const d=await r.json();if(d.total>0)updFeed(d.feed)}}catch(e){}},8000)}
+}
+function buildDash(data){
+  const sc=data.stat_cards;
+  document.getElementById('sc1').textContent=sc.total_signals;
+  document.getElementById('sc1d').textContent=sc.total_signals+' submissions';
+  document.getElementById('sc2').textContent=sc.avg_workload+'h';
+  document.getElementById('sc3').textContent=sc.pct_invisible+'%';
+  document.getElementById('sc4').textContent=sc.pct_skipped+'%';
+  buildBars(data.bar_chart);buildDonut(data.donut,data.total);buildFriction(data.friction);updFeed(data.feed);
+}
+function buildBars(barData){
+  const bc=document.getElementById('barchart');bc.innerHTML='';
+  const mx=Math.max(...barData,1);
+  barData.forEach((v,i)=>{const col=document.createElement('div');col.className='bcol';const f=document.createElement('div');f.className='bfill'+(i===barData.length-1?' hi':'');f.style.height='0px';f.title=v+' signals';col.appendChild(f);bc.appendChild(col);setTimeout(()=>{f.style.height=Math.round((v/mx)*120)+'px'},80+i*55)});
+}
+function buildDonut(dd,total){
+  document.getElementById('dc-num').textContent=total;
+  document.getElementById('dc-sub').textContent='signals';
+  const svg=document.getElementById('dsvg');svg.innerHTML='';
+  const leg=document.getElementById('dleg');leg.innerHTML='';
+  const cx=100,cy=100,r=80,sw=20,circ=2*Math.PI*r;
+  const gap=3;
+  let cumPct=0;
+  dd.forEach((d,i)=>{
+    const startAngle=(cumPct/100)*circ;
+    const rawDash=(d.pct/100)*circ;
+    const dash=Math.max(rawDash-gap,0);
+    const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx',cx);circle.setAttribute('cy',cy);circle.setAttribute('r',r);
+    circle.setAttribute('fill','none');circle.setAttribute('stroke',d.color);circle.setAttribute('stroke-width',sw);
+    circle.setAttribute('stroke-dasharray',`0 ${circ}`);
+    circle.setAttribute('stroke-dashoffset',(circ/4)-startAngle);
+    circle.setAttribute('opacity','0.9');
+    circle.setAttribute('class','donut-seg');
+    circle.style.transition=`stroke-dasharray ${0.8+i*0.15}s cubic-bezier(.4,0,.2,1) ${i*0.1}s`;
+    // hover interaction
+    circle.addEventListener('mouseenter',()=>{
+      circle.setAttribute('stroke-width',sw+5);
+      document.getElementById('dc-num').textContent=d.pct+'%';
+      document.getElementById('dc-sub').textContent=d.label;
     });
-  }
-}
-
-// ── DASHBOARD BUILDERS ────────────────────────────────────────────────────
-function buildBarChart(barData) {
-  const container = document.getElementById('bar-chart');
-  const max = Math.max(...barData);
-  barData.forEach((v, i) => {
-    const col = document.createElement('div');
-    col.className = 'bar-col';
-    const fill = document.createElement('div');
-    fill.className = 'bar-fill' + (i === barData.length - 1 ? ' highlight' : '');
-    fill.style.height = '0px';
-    fill.title = v + ' signals';
-    col.appendChild(fill);
-    container.appendChild(col);
-    setTimeout(() => {
-      fill.style.height = Math.round((v / max) * 140) + 'px';
-    }, 200 + i * 80);
-  });
-}
-
-function buildDonut() {
-  const svg = document.getElementById('donut-svg');
-  const cx = 70, cy = 70, r = 52, stroke = 18;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
-
-  donutData.forEach((d, i) => {
-    const dash = (d.pct / 100) * circ;
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
-    circle.setAttribute('fill', 'none');
-    circle.setAttribute('stroke', d.color);
-    circle.setAttribute('stroke-width', stroke);
-    circle.setAttribute('stroke-dasharray', dash + ' ' + (circ - dash));
-    circle.setAttribute('stroke-dashoffset', -offset + circ / 4);
-    circle.setAttribute('opacity', '0.85');
-    circle.style.transition = 'stroke-dasharray 1s ' + (i * 0.15) + 's ease';
+    circle.addEventListener('mouseleave',()=>{
+      circle.setAttribute('stroke-width',sw);
+      document.getElementById('dc-num').textContent=total;
+      document.getElementById('dc-sub').textContent='signals';
+    });
     svg.appendChild(circle);
-    offset += dash;
-  });
-
-  // center text
-  const text1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  text1.setAttribute('x', cx); text1.setAttribute('y', cy - 6);
-  text1.setAttribute('text-anchor', 'middle');
-  text1.setAttribute('fill', '#e8eaed');
-  text1.setAttribute('font-family', 'Syne, sans-serif');
-  text1.setAttribute('font-size', '22');
-  text1.setAttribute('font-weight', '800');
-  text1.textContent = '847';
-  svg.appendChild(text1);
-
-  const text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  text2.setAttribute('x', cx); text2.setAttribute('y', cy + 12);
-  text2.setAttribute('text-anchor', 'middle');
-  text2.setAttribute('fill', '#6b7280');
-  text2.setAttribute('font-size', '11');
-  text2.textContent = 'signals';
-  svg.appendChild(text2);
-
-  const legend = document.getElementById('donut-legend');
-  donutData.forEach(d => {
-    const row = document.createElement('div');
-    row.className = 'legend-row';
-    row.innerHTML = `
-      <span class="legend-name"><span class="legend-dot" style="background:${d.color}"></span>${d.label}</span>
-      <span class="legend-pct">${d.pct}%</span>
-    `;
-    legend.appendChild(row);
+    cumPct+=d.pct;
+    // animate in
+    setTimeout(()=>{circle.setAttribute('stroke-dasharray',`${dash} ${circ-dash}`)},50+i*80);
+    // legend row
+    const row=document.createElement('div');row.className='dlr';
+    row.innerHTML=`<span class="dln"><span class="dld" style="background:${d.color}"></span>${d.label}</span><span class="dlp">${d.pct}%</span>`;
+    row.addEventListener('mouseenter',()=>{circle.setAttribute('stroke-width',sw+5);document.getElementById('dc-num').textContent=d.pct+'%';document.getElementById('dc-sub').textContent=d.label});
+    row.addEventListener('mouseleave',()=>{circle.setAttribute('stroke-width',sw);document.getElementById('dc-num').textContent=total;document.getElementById('dc-sub').textContent='signals'});
+    leg.appendChild(row);
   });
 }
-
-function buildFriction() {
-  const container = document.getElementById('friction-list');
-  frictionData.forEach((d, i) => {
-    const item = document.createElement('div');
-    item.className = 'friction-item';
-    item.innerHTML = `
-      <div class="friction-top">
-        <span class="friction-name">${d.name}</span>
-        <span class="friction-pct" style="color:${d.color}">${d.pct}%</span>
-      </div>
-      <div class="friction-track">
-        <div class="friction-fill" style="background:${d.color}; width:${d.pct}%"></div>
-      </div>
-    `;
-    container.appendChild(item);
-  });
-  setTimeout(() => {
-    document.querySelectorAll('.friction-fill').forEach(f => f.classList.add('show'));
-  }, 400);
+function buildFriction(fd){
+  const c=document.getElementById('flist');c.innerHTML='';
+  fd.forEach(d=>{const i=document.createElement('div');i.innerHTML=`<div class="ftop"><span class="fname">${d.name}</span><span class="fpct" style="color:${d.color}">${d.pct}%</span></div><div class="ftrack"><div class="ffill" style="background:${d.color};width:${d.pct}%"></div></div>`;c.appendChild(i)});
+  setTimeout(()=>document.querySelectorAll('.ffill').forEach(f=>f.classList.add('show')),300);
 }
+function updFeed(fd){
+  const feed=document.getElementById('sfeed');feed.innerHTML='';
+  fd.forEach(m=>{const i=document.createElement('div');i.className='fitem';i.innerHTML=`<div class="fdot" style="background:${m.color}"></div><div><div class="ftxt">${m.text}</div><div class="ftime">${m.time}</div></div>`;feed.appendChild(i)});
+}
+const extras=[{text:'<strong>2nd year Eng</strong> — 48 hrs, zero downtime',color:'#fbbf24'},{text:'<strong>1st year CS</strong> — everyone looks fine, I\'m drowning',color:'#6ee7b7'},{text:'<strong>3rd year Econ</strong> — dropped a club to survive exams',color:'#93c5fd'},{text:'<strong>2nd year Sci</strong> — advisor gave me a pamphlet',color:'#f87171'},{text:'<strong>4th year Arts</strong> — no one checks until grades drop',color:'#b89dff'}];
+let ei=0;
+setInterval(()=>{
+  if(!document.getElementById('pdb').classList.contains('active'))return;
+  const feed=document.getElementById('sfeed');const m=extras[ei%extras.length];ei++;
+  const item=document.createElement('div');item.className='fitem';
+  item.innerHTML=`<div class="fdot" style="background:${m.color}"></div><div><div class="ftxt">${m.text}</div><div class="ftime">just now</div></div>`;
+  feed.insertBefore(item,feed.firstChild);
+  if(feed.children.length>10)feed.removeChild(feed.lastChild);
+  const sc=document.getElementById('sc1');if(sc&&sc.textContent!=='—')sc.textContent=parseInt(sc.textContent)+1;
+},7000);
 
-// ── FALLBACK DEMO DATA (shown if backend is offline) ─────────────────────
-const DEMO = {
-  ticker:     { cant_join: 79, skipped_wb: 84, felt_behind: 73, didnt_reach: 67 },
-  stat_cards: { total_signals: 847, avg_workload: 38, pct_invisible: 91, pct_skipped: 84 },
-  bar_chart:  [312, 445, 398, 521, 610, 578, 689, 724, 791, 812, 847],
-  donut: [
-    { label: 'First year',   pct: 31, color: '#4ade80' },
-    { label: 'Second year',  pct: 28, color: '#60a5fa' },
-    { label: 'Third year',   pct: 24, color: '#f59e0b' },
-    { label: 'Fourth year+', pct: 17, color: '#f87171' },
-  ],
-  friction: [
-    { name: 'Skipped wellbeing for coursework',  pct: 84, color: '#f87171' },
-    { name: 'Felt invisible to the institution', pct: 91, color: '#f59e0b' },
-    { name: "Couldn't join clubs/events",        pct: 79, color: '#60a5fa' },
-    { name: 'Felt behind despite trying',        pct: 73, color: '#4ade80' },
-    { name: "Didn't reach out — felt pointless", pct: 67, color: '#a78bfa' },
-    { name: 'Isolated, no words for it',         pct: 61, color: '#fb7185' },
-  ],
-  feed: [
-    { text: "<strong>2nd year Engineering</strong> — couldn't attend wellness event during midterms", color: '#f59e0b', time: '2 min ago' },
-    { text: '<strong>3rd year CS</strong> — skipped two club meetings to finish assignments',          color: '#60a5fa', time: '5 min ago' },
-    { text: '<strong>1st year Commerce</strong> — felt behind but afraid to ask for help',            color: '#4ade80', time: '9 min ago' },
-    { text: '<strong>4th year Life Sci</strong> — institution knows, nothing has changed',            color: '#f87171', time: '11 min ago' },
-    { text: '<strong>2nd year Arts</strong> — compared myself to top students, felt inadequate',      color: '#a78bfa', time: '14 min ago' },
-    { text: '<strong>3rd year Engineering</strong> — 52 hrs coursework, zero social contact',         color: '#fb7185', time: '18 min ago' },
-    { text: '<strong>1st year CS</strong> — reached out to advisor, got generic response',            color: '#60a5fa', time: '22 min ago' },
-  ],
-};
-
-// ── AUTO-REFRESH LIVE FEED ────────────────────────────────────────────────
-const liveFeedMessages = [
-  { text: "<strong>2nd year Engineering</strong> — 48 hrs of work, zero time for anything else", color: '#f59e0b' },
-  { text: "<strong>1st year CS</strong> — everyone seems fine, I feel like I'm drowning",        color: '#4ade80' },
-  { text: "<strong>3rd year Econ</strong> — dropped a club I cared about to survive exams",      color: '#60a5fa' },
-  { text: "<strong>2nd year Sci</strong> — told advisor I was struggling, got a pamphlet",       color: '#f87171' },
-  { text: "<strong>4th year Arts</strong> — no one checks in until grades drop",                 color: '#a78bfa' },
+// ── LEAGUES ──
+const LEAGUES=[
+  {icon:'🌊',name:'The Overflow',desc:'Crushed under workload, still showing up every day.',keyword:'wellbeing',color:'#b89dff',signals:312,rank:1},
+  {icon:'🌑',name:'The Invisible',desc:'Struggling in silence, unseen by the system.',keyword:'invisible',color:'#f87171',signals:289,rank:2},
+  {icon:'🧭',name:'The Lost Ones',desc:'Trying hard but feeling permanently behind.',keyword:'behind',color:'#93c5fd',signals:241,rank:3},
+  {icon:'🚪',name:'The Closed Door',desc:'Wanted to join. Couldn\'t. Every single semester.',keyword:'club',color:'#6ee7b7',signals:198,rank:4},
+  {icon:'🤐',name:'The Quiet Ones',desc:'Couldn\'t name the feeling, let alone ask for help.',keyword:'isolated',color:'#fbbf24',signals:176,rank:5},
+  {icon:'🪞',name:'The Comparers',desc:'Watching everyone succeed while treading water.',keyword:'compared',color:'#f9a8d4',signals:143,rank:6},
 ];
+const BADGES=[
+  {icon:'📡',name:'First Signal',desc:'Sent your first signal',cond:(c)=>c>=1},
+  {icon:'🔁',name:'Consistent',desc:'3 signals submitted',cond:(c)=>c>=3},
+  {icon:'🌊',name:'Signal Wave',desc:'5 signals submitted',cond:(c)=>c>=5},
+  {icon:'🏆',name:'Champion',desc:'10+ signals submitted',cond:(c)=>c>=10},
+  {icon:'🤝',name:'Collective',desc:'Part of the movement',cond:(c)=>c>=1},
+];
+function renderLeagues(){
+  const grid=document.getElementById('leagues-grid');grid.innerHTML='';
+  const logs=JSON.parse(localStorage.getItem(SK)||'[]');
+  const myB=logs.flatMap(l=>l.barriers).join(' ').toLowerCase();
+  const max=Math.max(...LEAGUES.map(l=>l.signals));
+  LEAGUES.forEach(lg=>{
+    const mine=myB.includes(lg.keyword);
+    const card=document.createElement('div');card.className='league-card'+(lg.rank===1?' top':'');
+    card.innerHTML=`<div class="league-rank">#${lg.rank}</div><div class="league-icon">${lg.icon}</div><div class="league-name" style="color:${lg.color}">${lg.name}</div><div class="league-desc">${lg.desc}</div><div class="league-bar"><div class="league-fill" style="background:${lg.color};width:0%" data-w="${Math.round((lg.signals/max)*100)}"></div></div><div class="league-stats"><span>${lg.signals}</span> signals ${mine?'<span style="color:'+lg.color+'">← you\'re here</span>':''}</div>`;
+    grid.appendChild(card);
+  });
+  setTimeout(()=>document.querySelectorAll('.league-fill').forEach(f=>{f.style.transition='width 1.4s ease';f.style.width=f.dataset.w+'%'}),200);
+  const row=document.getElementById('badge-row');row.innerHTML='';
+  BADGES.forEach(b=>{
+    const earned=b.cond(logs.length);
+    const el=document.createElement('div');el.className='badge'+(earned?' earned':' badge-locked');
+    el.innerHTML=`<span class="badge-icon">${b.icon}</span>${b.name}`;el.title=b.desc;row.appendChild(el);
+  });
+}
 
-let liveMsgIdx = 0;
-setInterval(async () => {
-  // Try to pull a fresh feed from the backend first
-  try {
-    const res  = await fetch(`${API}/stats`);
-    const data = await res.json();
-    if (data.feed && data.feed.length) {
-      const feed = document.getElementById('signal-feed');
-      const m    = data.feed[0];
-      const item = document.createElement('div');
-      item.className = 'feed-item';
-      item.innerHTML = `
-        <div class="feed-dot" style="background:${m.color}"></div>
-        <div>
-          <div class="feed-text">${m.text}</div>
-          <div class="feed-time">just now</div>
-        </div>`;
-      feed.insertBefore(item, feed.firstChild);
-      if (feed.children.length > 12) feed.removeChild(feed.lastChild);
-      document.getElementById('sn1').textContent = data.stat_cards.total_signals;
+// ── NYT-STYLE TRIVIA ──
+const QS=[
+  {q:'What percentage of Canadian university students report high academic stress?',cat:'Student Wellbeing',opts:['32%','51%','68%','79%'],correct:2,fb:'Studies consistently show over two-thirds of university students cite academic stress as a major factor. Numbers spike during midterms and finals.'},
+  {q:'What is the #1 reason students cite for NOT participating in extracurriculars?',cat:'Campus Life',opts:['Not interested','Social anxiety','Academic workload','Cost of membership'],correct:2,fb:'Academic workload dominates across North American university surveys as the primary barrier to extracurricular participation — not disinterest.'},
+  {q:'What fraction of struggling students actually use campus mental health services?',cat:'Help-Seeking',opts:['About half','About a third','Less than 20%','More than 60%'],correct:2,fb:'Despite awareness campaigns, fewer than 1 in 5 students who struggle access campus mental health services — due to stigma, waitlists, and lack of awareness.'},
+  {q:'What does "survivorship bias" mean in a university context?',cat:'Systems Thinking',opts:['Survivors of trauma get fewer resources','Only students who graduate are counted in metrics','High-achieving students skew what seems normal','Students who drop out are later ignored'],correct:2,fb:'When universities showcase top-performing students, they create a skewed baseline. Average students feel like outliers even when they represent the majority.'},
+  {q:'When students feel their struggle is "invisible," what is the most common institutional response?',cat:'Institutional Response',opts:['Proactive outreach','Generic wellness pamphlets','One-on-one counseling','Policy reform'],correct:1,fb:'Most institutions default to distributing wellness materials — which students consistently report as dismissive rather than helpful.'},
+  {q:'How many hours per week do full-time students typically spend on coursework OUTSIDE class?',cat:'Academic Load',opts:['12–15 hrs','18–22 hrs','25–30 hrs','35+ hrs'],correct:1,fb:'18–22 hours is the average, but this varies widely. Engineering and sciences often report 30–40 hours, leaving little room for anything else.'},
+];
+let tState={q:0,score:0,streak:0,maxStreak:0,answered:false,results:[]};
+function initTrivia(){tState={q:0,score:0,streak:0,maxStreak:0,answered:false,results:[]};renderQ()}
+function renderQ(){
+  const wrap=document.getElementById('trivia-wrap');
+  if(tState.q>=QS.length){renderEnd();return}
+  const q=QS[tState.q];
+  const letters=['A','B','C','D'];
+  const pct=Math.round((tState.q/QS.length)*100);
+  wrap.innerHTML=`
+  <div class="nyt-card">
+    <div class="nyt-header">
+      <div class="nyt-streak">🔥 ${tState.streak} streak</div>
+      <div class="nyt-score-display">${tState.score}/${tState.q} correct</div>
+    </div>
+    <div class="nyt-progress-bar"><div class="nyt-progress-fill" style="width:${pct}%"></div></div>
+    <div class="nyt-body">
+      <div class="nyt-cat-badge">${q.cat} · ${tState.q+1} of ${QS.length}</div>
+      <div class="nyt-q">${q.q}</div>
+      <div class="nyt-opts">
+        ${q.opts.map((o,i)=>`<button class="nyt-opt" onclick="answerQ(${i})" id="opt${i}"><span class="nyt-opt-letter">${letters[i]}</span>${o}</button>`).join('')}
+      </div>
+      <div class="trivia-feedback" id="tfb">${q.fb}</div>
+      <div class="nyt-result-bar" id="tresult" style="display:none"></div>
+      <button class="nyt-next" id="tnext" onclick="nextQ()">${tState.q===QS.length-1?'See results →':'Next question →'}</button>
+    </div>
+  </div>`;
+}
+function answerQ(idx){
+  if(tState.answered)return;
+  tState.answered=true;
+  const q=QS[tState.q];
+  const correct=idx===q.correct;
+  if(correct){tState.score++;tState.streak++;tState.maxStreak=Math.max(tState.streak,tState.maxStreak)}else{tState.streak=0}
+  tState.results.push({q:tState.q,correct});
+  for(let i=0;i<q.opts.length;i++){
+    const btn=document.getElementById('opt'+i);btn.disabled=true;
+    if(i===q.correct)btn.classList.add('correct');
+    else if(i===idx)btn.classList.add('wrong');
+    else btn.classList.add('reveal');
+  }
+  document.getElementById('tfb').classList.add('show');
+  const res=document.getElementById('tresult');
+  res.style.display='flex';
+  res.innerHTML=`<span>${correct?'✓ Correct':'✗ Incorrect'}</span><span style="color:${correct?'var(--gn)':'var(--rd)'};font-weight:700">${correct?'+1 point':'no points'}</span>`;
+  document.getElementById('tnext').classList.add('show');
+}
+function nextQ(){tState.q++;tState.answered=false;renderQ()}
+function renderEnd(){
+  const wrap=document.getElementById('trivia-wrap');
+  const pct=Math.round((tState.score/QS.length)*100);
+  const emoji=pct>=80?'🎯':pct>=60?'📡':pct>=40?'💡':'🌱';
+  const msg=pct>=80?'You clearly pay attention to the world around you. The data behind student struggles is your territory.':pct>=60?'Solid understanding. There\'s always more to learn about the systems we live in.':pct>=40?'You\'re more aware than most. These are things universities would rather you didn\'t know.':'The data is out there — and now you know where to start looking. 📡';
+  const shareStr=`📡 Silent Signal Trivia\n${tState.score}/${QS.length} correct · ${pct}%\nStreak: ${tState.maxStreak} 🔥\nsilentsignal.ca`;
+  wrap.innerHTML=`<div class="nyt-card"><div class="nyt-end">
+    <span class="nyt-end-emoji">${emoji}</span>
+    <div class="nyt-end-score">${tState.score}/${QS.length}</div>
+    <div class="nyt-end-label">${pct}% · Best streak: ${tState.maxStreak} 🔥</div>
+    <div class="nyt-end-msg">${msg}</div>
+    <div class="nyt-share" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.textContent);this.style.borderColor='var(--ac)'" title="Click to copy">${shareStr}</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="bp" onclick="initTrivia()">Play again →</button>
+      <button class="bgs" onclick="sp('checkin')">Submit a signal</button>
+    </div>
+  </div></div>`;
+}
+
+// ── LOGS ──
+function renderLogs(){
+  const logs=JSON.parse(localStorage.getItem(SK)||'[]');
+  const list=document.getElementById('llist'),empty=document.getElementById('lempty'),sumbar=document.getElementById('lsbar');
+  list.innerHTML='';
+  if(logs.length===0){empty.style.display='block';sumbar.style.display='none';return}
+  empty.style.display='none';sumbar.style.display='block';
+  const avgW=Math.round(logs.reduce((a,l)=>a+l.workload,0)/logs.length);
+  const bc={};logs.flatMap(l=>l.barriers).forEach(b=>bc[b]=(bc[b]||0)+1);
+  const top=Object.entries(bc).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('lsc').textContent=logs.length;
+  document.getElementById('lsw').textContent=avgW+'h';
+  document.getElementById('lst').textContent=top?top[0].split(' ').slice(0,2).join(' ')+'…':'—';
+  const ym={'1':'1st year','2':'2nd year','3':'3rd year','4':'4th year+'};
+  const vm={invisible:'Invisible',partial:'Partial',visible:'Acknowledged'};
+  logs.forEach(log=>{
+    const card=document.createElement('div');card.className='lcard rv';
+    const ds=new Date(log.date).toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
+    card.innerHTML=`<div class="lhdr"><div class="ldate">Week of ${ds}</div><div class="lyear">${ym[log.year]||log.year}</div></div><div class="ltags">${log.barriers.map(b=>`<span class="ltag">${b}</span>`).join('')}</div><div class="lmeta"><div class="lmi">Workload <span>${log.workload}h</span></div><div class="lmi">Visibility <span>${vm[log.visibility]||log.visibility}</span></div></div>`;
+    list.appendChild(card);
+  });
+  setTimeout(ir,60);
+}
+
+// ── COUNTDOWN TIMER ──
+function initCountdown(){
+  const deadline=new Date('2026-03-15T08:30:00-04:00');
+  function tick(){
+    const now=new Date();
+    const diff=deadline-now;
+    if(diff<=0){
+      document.getElementById('cd-timer').innerHTML='<span style="color:var(--rd);font-family:Syne,sans-serif;font-weight:700">Submissions closed</span>';
       return;
     }
-  } catch (_) {}
-
-  // Fallback: cycle demo messages
-  const feed = document.getElementById('signal-feed');
-  const m    = liveFeedMessages[liveMsgIdx % liveFeedMessages.length];
-  liveMsgIdx++;
-  const item = document.createElement('div');
-  item.className = 'feed-item';
-  item.innerHTML = `
-    <div class="feed-dot" style="background:${m.color}"></div>
-    <div>
-      <div class="feed-text">${m.text}</div>
-      <div class="feed-time">just now</div>
-    </div>`;
-  feed.insertBefore(item, feed.firstChild);
-  if (feed.children.length > 12) feed.removeChild(feed.lastChild);
-  const el = document.getElementById('sn1');
-  if (el.textContent !== '—') el.textContent = parseInt(el.textContent) + 1;
-}, 6000);
-
-// ── SCROLL REVEAL + DASHBOARD INIT ───────────────────────────────────────
-let dashboardBuilt = false;
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      if (e.target.id === 'dashboard-section' && !dashboardBuilt) {
-        dashboardBuilt = true;
-        observer.unobserve(e.target);
-        // Build with whatever data we have (API or demo)
-        fetch(`${API}/stats`)
-          .then(r => r.json())
-          .then(data => updateDashboard(data))
-          .catch(() => updateDashboard(DEMO));
-      }
-    }
-  });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-// ── BAR TOOLTIPS ─────────────────────────────────────────────────────────
-document.addEventListener('mousemove', (e) => {
-  const tip = document.getElementById('tooltip');
-  if (e.target.classList.contains('bar-fill')) {
-    tip.textContent  = e.target.title;
-    tip.style.opacity = '1';
-    tip.style.left    = (e.clientX + 12) + 'px';
-    tip.style.top     = (e.clientY - 28) + 'px';
-  } else {
-    tip.style.opacity = '0';
+    const h=Math.floor(diff/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    const fmt=n=>String(n).padStart(2,'0');
+    document.getElementById('cd-h').textContent=fmt(h);
+    document.getElementById('cd-m').textContent=fmt(m);
+    document.getElementById('cd-s').textContent=fmt(s);
+    if(h<3)document.querySelector('.cd-inner').classList.add('urgent');
   }
-});
+  tick();setInterval(tick,1000);
+}
+initCountdown();
 
-// ── BOOT: load ticker from API (or demo) ─────────────────────────────────
-fetch(`${API}/stats`)
-  .then(r => r.json())
-  .then(data => {
-    if (data.ticker) {
-      setTimeout(() => {
-        animCount(document.getElementById('tp1'), data.ticker.cant_join);
-        animCount(document.getElementById('tp2'), data.ticker.skipped_wb);
-        animCount(document.getElementById('tp3'), data.ticker.felt_behind);
-        animCount(document.getElementById('tp4'), data.ticker.didnt_reach);
-        ['t1','t2','t3','t4'].forEach(id =>
-          setTimeout(() => document.getElementById(id).classList.add('loaded'), 200)
-        );
-      }, 600);
-    }
-  })
-  .catch(() => {
-    // Backend offline — show demo ticker
-    setTimeout(() => {
-      animCount(document.getElementById('tp1'), DEMO.ticker.cant_join);
-      animCount(document.getElementById('tp2'), DEMO.ticker.skipped_wb);
-      animCount(document.getElementById('tp3'), DEMO.ticker.felt_behind);
-      animCount(document.getElementById('tp4'), DEMO.ticker.didnt_reach);
-      ['t1','t2','t3','t4'].forEach(id =>
-        setTimeout(() => document.getElementById(id).classList.add('loaded'), 200)
-      );
-    }, 600);
+// ── AI-GENERATED USERS ──
+const AI_USERS=[
+  {emoji:'🧑‍💻',name:'Alex K.',year:'2nd year CS',barrier:'felt behind despite trying',color:'#b89dff'},
+  {emoji:'👩‍🔬',name:'Priya S.',year:'3rd year Life Sci',barrier:'skipped wellbeing to keep up',color:'#6ee7b7'},
+  {emoji:'🧑‍🎨',name:'Marcus T.',year:'1st year Eng',barrier:'couldn\'t join clubs',color:'#93c5fd'},
+  {emoji:'👩‍💼',name:'Zara M.',year:'4th year Commerce',barrier:'felt invisible to institution',color:'#f9a8d4'},
+  {emoji:'🧑‍🏫',name:'Jin L.',year:'2nd year Math',barrier:'didn\'t ask for help',color:'#fbbf24'},
+  {emoji:'👩‍💻',name:'Aisha R.',year:'3rd year CS',barrier:'isolated, no words for it',color:'#f87171'},
+  {emoji:'🧑‍⚕️',name:'Dani P.',year:'1st year Nursing',barrier:'compared myself unfairly',color:'#a78bfa'},
+  {emoji:'👩‍🎓',name:'Soo-Jin H.',year:'4th year Psych',barrier:'resources felt inaccessible',color:'#fbbf24'},
+  {emoji:'🧑‍🔧',name:'Omar F.',year:'2nd year MechEng',barrier:'skipped wellbeing to keep up',color:'#6ee7b7'},
+  {emoji:'👩‍🎨',name:'Lena V.',year:'3rd year Fine Arts',barrier:'felt behind despite trying',color:'#b89dff'},
+  {emoji:'🧑‍🚀',name:'Tyler B.',year:'1st year CS',barrier:'felt like the only one struggling',color:'#93c5fd'},
+  {emoji:'👩‍🔬',name:'Mei C.',year:'2nd year Biochem',barrier:'skipped wellbeing to keep up',color:'#f9a8d4'},
+];
+
+function buildUsersStrip(){
+  const container=document.getElementById('us-avatars');
+  const countEl=document.getElementById('us-count');
+  if(!container)return;
+  container.innerHTML='';
+  // show 8 random users
+  const shown=AI_USERS.slice().sort(()=>Math.random()-.5).slice(0,8);
+  shown.forEach(u=>{
+    const av=document.createElement('div');
+    av.className='us-av';
+    av.style.background=u.color+'22';
+    av.style.border=`2px solid ${u.color}44`;
+    av.innerHTML=`${u.emoji}<div class="us-av-tooltip">${u.name} · ${u.year}</div>`;
+    container.appendChild(av);
   });
+  // +N more
+  const more=document.createElement('div');
+  more.className='us-av';
+  more.style.background='var(--adim)';
+  more.style.color='var(--ac)';
+  more.style.fontSize='10px';
+  more.style.fontFamily='Syne,sans-serif';
+  more.style.fontWeight='700';
+  more.textContent='+'+( AI_USERS.length - 8 + Math.floor(Math.random()*40+20));
+  container.appendChild(more);
+  const countVal=Math.floor(Math.random()*30+60);
+  countEl.textContent=countVal+' active';
+  // rotate a user every 5s
+  setInterval(()=>{
+    const newUser=AI_USERS[Math.floor(Math.random()*AI_USERS.length)];
+    const first=container.firstChild;
+    first.style.opacity='0';
+    first.style.transform='scale(0.5)';
+    setTimeout(()=>{
+      first.style.fontSize='14px';
+      first.innerHTML=`${newUser.emoji}<div class="us-av-tooltip">${newUser.name} · ${newUser.year}</div>`;
+      first.style.background=newUser.color+'22';
+      first.style.border=`2px solid ${newUser.color}44`;
+      first.style.opacity='1';
+      first.style.transform='scale(1)';
+    },300);
+  },5000);
+}
+buildUsersStrip();
+
+// Add logo to hero title area
+(function injectLogoHero(){
+  const eyebrow=document.querySelector('.eyebrow');
+  if(eyebrow&&eyebrow.parentNode){
+    const logoImg=document.createElement('img');
+    logoImg.src='logo.png';
+    logoImg.alt='Silent Signal';
+    logoImg.style.cssText='height:48px;width:auto;object-fit:contain;margin:0 auto 24px;display:block;animation:fu .6s ease both;opacity:0.9';
+    eyebrow.parentNode.insertBefore(logoImg,eyebrow);
+  }
+})();
 </script>
 </body>
 </html>
