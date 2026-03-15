@@ -940,25 +940,10 @@ async function genReport(fmt){
 // ── DASHBOARD ──
 function getDemoData(){return{total:847,stat_cards:{total_signals:847,avg_workload:38,pct_invisible:91,pct_skipped:84},bar_chart:[312,445,398,521,610,578,689,724,791,812,847],donut:[{label:'First year',pct:31,color:'#b89dff'},{label:'Second year',pct:28,color:'#93c5fd'},{label:'Third year',pct:24,color:'#fbbf24'},{label:'Fourth year+',pct:17,color:'#f87171'}],friction:[{name:'Felt invisible',pct:91,color:'#b89dff'},{name:'Skipped wellbeing',pct:84,color:'#f87171'},{name:"Can't join clubs",pct:79,color:'#93c5fd'},{name:'Felt behind',pct:73,color:'#6ee7b7'},{name:"Didn't reach out",pct:67,color:'#a78bfa'},{name:'Isolated',pct:61,color:'#f9a8d4'}],feed:[{text:'<strong>2nd year Engineering</strong> — couldn\'t attend wellness event',color:'#fbbf24',time:'2 min ago'},{text:'<strong>3rd year CS</strong> — skipped two club meetings',color:'#93c5fd',time:'5 min ago'},{text:'<strong>1st year Commerce</strong> — afraid to ask for help',color:'#6ee7b7',time:'9 min ago'},{text:'<strong>4th year Life Sci</strong> — institution knows, nothing changed',color:'#f87171',time:'11 min ago'},{text:'<strong>2nd year Arts</strong> — felt inadequate comparing myself',color:'#b89dff',time:'14 min ago'}]}}
 async function initDash(){
-  // Always show demo data immediately so nothing is blank
-  buildDash(getDemoData());
-  // Then try to fetch real data and overlay it
-  try{
-    const r=await fetch(API+'/stats');
-    if(r.ok){
-      const data=await r.json();
-      if(data.total>0){
-        buildDash(data);
-      }
-    }
-  }catch(e){}
-  if(!dashBuilt){
-    dashBuilt=true;
-    setInterval(async()=>{
-      try{const r=await fetch(API+'/stats');if(r.ok){const d=await r.json();if(d.total>0)updFeed(d.feed)}}catch(e){}
-    },8000)
-  }
-}
+  let data=null;
+  try{const r=await fetch(API+'/stats');if(r.ok)data=await r.json()}catch(e){}
+  if(!data||data.total===0)data=getDemoData();
+  buildDash(data);
   if(!dashBuilt){dashBuilt=true;setInterval(async()=>{try{const r=await fetch(API+'/stats');if(r.ok){const d=await r.json();if(d.total>0)updFeed(d.feed)}}catch(e){}},8000)}
 }
 function buildDash(data){
