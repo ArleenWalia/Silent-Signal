@@ -1,6 +1,6 @@
 # Silent Signal 📡
 
-> *Universities track grades. Nobody tracks the cost of getting there.*
+> *You're not struggling. The system is.*
 
 ---
 
